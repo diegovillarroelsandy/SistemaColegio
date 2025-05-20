@@ -2,15 +2,15 @@ CREATE DATABASE IF NOT EXISTS SpeechTherapy;
 
 USE SpeechTherapy;
 
--- Tabla que almacena la información de los usuarios
+
 CREATE TABLE IF NOT EXISTS usuario (
-    id INT AUTO_INCREMENT PRIMARY KEY,  -- Identificador único del usuario
-    nombre VARCHAR(100) NOT NULL,        -- Nombre del usuario
-    apellido VARCHAR(50) NOT NULL,      -- Apellido del usuario
-    estaActivo BOOLEAN DEFAULT TRUE,  -- a futuro para que alguien no tenga mas una cuenta
-    email VARCHAR(100) UNIQUE NOT NULL,  -- Correo electrónico del usuario, debe ser único
-    password VARCHAR(255) NOT NULL,      -- Contraseña del usuario almacenada de forma segura
-    rol ENUM('estudiante', 'terapeuta') NOT NULL  -- Rol del usuario: puede ser estudiante o terapeuta
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    estaActivo BOOLEAN DEFAULT TRUE,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rol ENUM('estudiante', 'terapeuta') NOT NULL
 );
 
 -- Tabla que almacena las acciones que pueden realizar paciente/terapeuta
@@ -184,25 +184,25 @@ CREATE TABLE IF NOT EXISTS fotos_siluetas (
 CREATE TABLE IF NOT EXISTS situaciones (
     id INT AUTO_INCREMENT PRIMARY KEY,  -- Identificador único para cada situación
     src VARCHAR(250) NOT NULL,          -- Ruta de la imagen que representa la situación
-    descripcion VARCHAR(255) NOT NULL   -- Descripción de la situación (opcional, para mayor contexto)
+    descripcion VARCHAR(255) NOT NULL
 );
 
--- Tabla que almacena las opciones de imágenes asociadas a cada situación
+
 CREATE TABLE IF NOT EXISTS opciones_situacion (
-    id INT AUTO_INCREMENT PRIMARY KEY,    -- Identificador único para cada opción de imagen
-    src VARCHAR(250) NOT NULL,            -- Ruta de la imagen que representa la opción
-    esCorrecta BOOLEAN NOT NULL,          -- Indica si la imagen es la respuesta correcta para la situación
-    situacion_id INT,                     -- Relación con la situación correspondiente (identificador de la tabla `situaciones`)
-    FOREIGN KEY (situacion_id) REFERENCES situaciones(id) ON DELETE CASCADE -- Clave foránea que relaciona la opción con una situación específica
+    id INT AUTO_INCREMENT PRIMARY KEY, 
+    src VARCHAR(250) NOT NULL,
+    esCorrecta BOOLEAN NOT NULL,
+    situacion_id INT,                     
+    FOREIGN KEY (situacion_id) REFERENCES situaciones(id) ON DELETE CASCADE
 );
 
--- Tabla Reporte
+
 CREATE TABLE IF NOT EXISTS reportes (
-    id INT AUTO_INCREMENT PRIMARY KEY,           -- Identificador único para cada reporte
-    usuario_id INT NOT NULL,                     -- Relación con el usuario que realizó el juego
-    juego ENUM('discriminacion', 'oraciones', 'emociones', 'intrusos', 'colores', 'rutinas', 'sentidos', 'figuras', 'siluetas', 'situaciones') NOT NULL,                                        -- Nombre del juego realizado
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,    -- Fecha y hora en la que se realizó el juego
-    aciertos INT DEFAULT 0,                      -- Número de respuestas correctas
-    incorrectos INT DEFAULT 0,                   -- Número de respuestas incorrectas
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE -- Clave foránea que relaciona el reporte con un usuario específico
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    juego ENUM('discriminacion', 'oraciones', 'emociones', 'intrusos', 'colores', 'rutinas', 'sentidos', 'figuras', 'siluetas', 'situaciones') NOT NULL,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    aciertos INT DEFAULT 0,
+    incorrectos INT DEFAULT 0,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE}
 );
