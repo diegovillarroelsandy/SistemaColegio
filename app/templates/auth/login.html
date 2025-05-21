@@ -1,0 +1,87 @@
+{% extends "auth/base.html" %} {% block title %}Iniciar Sesión - Sistema
+Colegio{% endblock %} {% block content %}
+<div class="text-center">
+  <form class="form-signin" method="POST" action="{{ url_for('auth.login') }}">
+    {{ form.hidden_tag() }}
+
+    <img
+      class="mb-4"
+      src="{{ url_for('static', filename='img/logo.svg') }}"
+      alt="Sistema Colegio"
+      style="max-width: 120px"
+    />
+
+    <div class="form-floating mb-3">
+      {{ form.correo(class="form-control", placeholder="Correo electrónico") }}
+      <label for="{{ form.correo.id }}">Correo electrónico</label>
+      {% for error in form.correo.errors %}
+      <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="form-floating mb-3 position-relative">
+      {{ form.password(class="form-control", placeholder="Contraseña",
+      id="password-input") }}
+      <label for="{{ form.password.id }}">Contraseña</label>
+      <button
+        type="button"
+        class="btn btn-link position-absolute top-50 end-0 translate-middle-y ms-2"
+        id="toggle-password"
+      >
+        <i class="fas fa-eye"></i>
+      </button>
+      {% for error in form.password.errors %}
+      <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      document
+        .getElementById("toggle-password")
+        .addEventListener("click", function () {
+          const passwordInput = document.getElementById("password-input");
+          const icon = this.querySelector("i");
+
+          if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+          } else {
+            passwordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+          }
+        });
+    </script>
+
+    <div class="checkbox mb-3">
+      {{ form.remember_me(class="form-check-input") }} {{
+      form.remember_me.label(class="form-check-label") }}
+      <small class="text-muted"
+        >(La sesión se mantendrá activa incluso después de cerrar el
+        navegador)</small
+      >
+    </div>
+
+    <button type="submit" class="w-100 btn btn-lg btn-primary">
+      Iniciar Sesión
+    </button>
+
+    <div class="mt-3">
+      <p class="text-center">
+        ¿No tienes cuenta?
+        <a href="{{ url_for('auth.register') }}">Regístrate aquí</a>
+      </p>
+      <p class="text-center text-muted">
+        <small
+          >La sesión se mantendrá activa durante 30 días si seleccionas
+          "Recordarme"</small
+        >
+      </p>
+    </div>
+  </form>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %} {% if messages
+%} {% for category, message in messages %}
+<div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+{% endfor %} {% endif %} {% endwith %} {% endblock %}
