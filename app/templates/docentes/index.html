@@ -1,4 +1,35 @@
+<<<<<<< HEAD
 {% extends "base.html" %}
+=======
+{% extends "docentes/base.html" %}
+
+{% block title %}Panel de Docente - Sistema Colegio{% endblock %}
+
+{% block role %}Docente{% endblock %}
+
+{% block sidebar_content %}
+<a href="{{ url_for('docentes.index') }}" class="sidebar-link active">
+    <i class="fas fa-home"></i>
+    <span>Inicio</span>
+</a>
+<a href="{{ url_for('docentes.estudiantes') }}" class="sidebar-link">
+    <i class="fas fa-users"></i>
+    <span>Estudiantes</span>
+</a>
+<a href="{{ url_for('docentes.contenido') }}" class="sidebar-link">
+    <i class="fas fa-book"></i>
+    <span>Contenido</span>
+</a>
+<a href="{{ url_for('docentes.ejercicios') }}" class="sidebar-link">
+    <i class="fas fa-tasks"></i>
+    <span>Ejercicios</span>
+</a>
+<a href="{{ url_for('docentes.calificaciones') }}" class="sidebar-link">
+    <i class="fas fa-chart-bar"></i>
+    <span>Calificaciones</span>
+</a>
+{% endblock %}
+>>>>>>> cf6d9494fb370b90ae4ff850055e87bfa28de818
 
 {% block content %}
 <div class="container mt-5">
