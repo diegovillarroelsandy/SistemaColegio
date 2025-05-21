@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Grados</h5>
+                <a href="{{ url_for('admin.nuevo_grado') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i> Nuevo Grado
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Docentes</th>
+                                <th>Estudiantes</th>
+                                <th>Fecha de Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for grado in grados %}
+                            <tr>
+                                <td>{{ grado.nombre }}</td>
+                                <td>{{ grado.descripcion if grado.descripcion else 'Sin descripción' }}</td>
+                                <td>{{ grado.docentes|length }}</td>
+                                <td>{{ grado.estudiantes|length }}</td>
+                                <td>{{ grado.fecha_creacion.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin.ver_grado', id=grado.id) }}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </a>
+                                    <a href="{{ url_for('admin.editar_grado', id=grado.id) }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    <button class="btn btn-sm btn-danger" 
+                                            onclick="eliminarGrado('{{ grado.nombre }}', {{ grado.id }})" 
+                                            title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function eliminarGrado(nombre, id) {
+    if (confirm(`¿Estás seguro de eliminar el grado "${nombre}"?\n\nEsta acción no se puede deshacer.`)) {
+        window.location.href = `/admin/grados/${id}/eliminar`;
+    }
+}
+</script>
+{% endblock %}

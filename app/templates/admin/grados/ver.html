@@ -1,0 +1,109 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Detalles del Grado</h5>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.grados') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                    <a href="{{ url_for('admin.editar_grado', id=grado.id) }}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Información del Grado</h5>
+                                <p class="card-text">
+                                    <strong>Nombre:</strong> {{ grado.nombre }}<br>
+                                    <strong>Descripción:</strong> {{ grado.descripcion if grado.descripcion else 'Sin descripción' }}<br>
+                                    <strong>Fecha de Creación:</strong> 
+                                    {% if grado.fecha_creacion %}
+                                        {{ grado.fecha_creacion.strftime('%Y-%m-%d') }}
+                                    {% else %}
+                                        Sin fecha de creación
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Usuarios Asignados</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Docentes</h6>
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Nombre</th>
+                                                                <th>Especialidad</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for docente in grado.docentes %}
+                                                            <tr>
+                                                                <td>{{ docente.usuario.nombre_completo }}</td>
+                                                                <td>{{ docente.especialidad }}</td>
+                                                            </tr>
+                                                            {% else %}
+                                                            <tr>
+                                                                <td colspan="2" class="text-center">No hay docentes asignados</td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Estudiantes</h6>
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Nombre</th>
+                                                                <th>Sección</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for estudiante in grado.estudiantes %}
+                                                            <tr>
+                                                                <td>{{ estudiante.usuario.nombre_completo }}</td>
+                                                                <td>{{ estudiante.seccion }}</td>
+                                                            </tr>
+                                                            {% else %}
+                                                            <tr>
+                                                                <td colspan="2" class="text-center">No hay estudiantes asignados</td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
