@@ -4,7 +4,7 @@ from ..models import db, Usuario, Rol
 from werkzeug.security import generate_password_hash
 from ..forms.auth import LoginForm
 
-auth_bp = Blueprint('auth', __name__)
+auth_bp = Blueprint('auth', _name_)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -15,10 +15,15 @@ def login():
         
         if usuario and usuario.check_password(form.password.data):
             login_user(usuario, remember=form.remember_me.data)
-            # Redirigir a panel de administración si es administrador
+           
             if usuario.has_role('administrador'):
                 return redirect(url_for('admin.index'))
-            return redirect(url_for('main.index'))
+            elif usuario.has_role('docente'):
+                return redirect(url_for('docentes.index'))
+            elif usuario.has_role('estudiante'):
+                return redirect(url_for('main.index'))
+            else:
+                return redirect(url_for('main.index'))
         else:
             flash('Correo o contraseña incorrectos', 'error')
     
@@ -35,8 +40,7 @@ def register():
         if Usuario.query.filter_by(correo=correo).first():
             flash('El correo ya está registrado', 'error')
             return redirect(url_for('auth.register'))
-        
-        # Crear nuevo usuario
+
         nuevo_usuario = Usuario(
             correo=correo,
             nombre_completo=nombre_completo
