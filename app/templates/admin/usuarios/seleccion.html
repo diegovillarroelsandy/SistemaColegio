@@ -1,0 +1,29 @@
+
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Crear Nuevo Usuario</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <h4>¿Qué tipo de usuario deseas crear?</h4>
+                        <div class="mt-4">
+                            <a href="{{ url_for('admin.nuevo_docente') }}" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-chalkboard-teacher me-2"></i>Docente
+                            </a>
+                            <a href="{{ url_for('admin.nuevo_estudiante') }}" class="btn btn-success btn-lg">
+                                <i class="fas fa-user-graduate me-2"></i>Estudiante
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

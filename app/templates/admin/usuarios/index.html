@@ -1,0 +1,131 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Usuarios</h5>
+                    <div class="btn-group">
+                        <a href="{{ url_for('admin.seleccion_usuario') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nuevo Usuario
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Rol</th>
+                                    <th>Especialidad/Grado</th>
+                                    <th>Sección</th>
+                                    <th>Fecha de Registro</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if usuarios %}
+                                    {% for usuario in usuarios %}
+                                    <tr>
+                                    <td>
+                                        <i class="fas fa-user"></i> {{ usuario.nombre_completo }}
+                                    </td>
+                                    <td>{{ usuario.correo }}</td>
+                                    <td>
+                                        {% for rol in usuario.roles %}
+                                        <span class="badge bg-primary">
+                                            {{ rol.nombre }}
+                                        </span>
+                                        {% if not loop.last %} {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% if usuario.docente %}
+                                            <div>
+                                                <strong>Especialidad:</strong> {{ usuario.docente.especialidad }}<br>
+                                                <strong>Grado:</strong> {{ usuario.docente.grado.nombre if usuario.docente.grado }}
+                                            </div>
+                                        {% elif usuario.estudiante %}
+                                            <div>
+                                                <strong>Grado:</strong> {{ usuario.estudiante.grado.nombre if usuario.estudiante.grado }}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if usuario.estudiante %}
+                                            {{ usuario.estudiante.seccion }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ usuario.fecha_creacion.strftime('%Y-%m-%d') }}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">Activo</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                             {% if usuario.docente %}
+                                             <a href="{{ url_for('admin.ver_docente', id=usuario.id) }}" 
+                                                class="btn btn-sm btn-info" 
+                                                title="Ver detalles">
+                                                 <i class="fas fa-eye"></i>
+                                             </a>
+                                             <a href="{{ url_for('admin.editar_docente', id=usuario.id) }}" 
+                                                class="btn btn-sm btn-warning" 
+                                                title="Editar">
+                                                 <i class="fas fa-edit"></i>
+                                             </a>
+                                             {% elif usuario.estudiante %}
+                                             <a href="{{ url_for('admin.ver_estudiante', id=usuario.id) }}" 
+                                                class="btn btn-sm btn-info" 
+                                                title="Ver detalles">
+                                                 <i class="fas fa-eye"></i>
+                                             </a>
+                                             <a href="{{ url_for('admin.editar_estudiante', id=usuario.id) }}" 
+                                                class="btn btn-sm btn-warning" 
+                                                title="Editar">
+                                                 <i class="fas fa-edit"></i>
+                                             </a>
+                                             {% endif %}
+                                            <button class="btn btn-sm btn-danger" 
+                                                    onclick="eliminarUsuario('{{ usuario.nombre_completo }}', {{ usuario.id }})" 
+                                                    title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <i class="fas fa-users fa-2x text-muted"></i>
+                                            <p class="mt-2 text-muted">No hay usuarios registrados</p>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function eliminarUsuario(nombre, id) {
+    if (confirm('¿Estás seguro de eliminar al usuario "' + nombre + '"?')) {
+        window.location.href = '/admin/usuarios/' + id + '/eliminar';
+    }
+}
+</script>
+{% endblock %}
