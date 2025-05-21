@@ -1,0 +1,68 @@
+
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Detalles del Rol</h5>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.roles') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Volver
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <p class="form-control-plaintext">{{ rol.nombre }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <p class="form-control-plaintext">
+                                {% if rol.descripcion %}
+                                    {{ rol.descripcion }}
+                                {% else %}
+                                    Sin descripción
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha de Creación</label>
+                            <p class="form-control-plaintext">
+                                {% if rol.fecha_creacion %}
+                                    {{ rol.fecha_creacion.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                    Sin fecha de creación
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Usuarios Asignados</label>
+                            <div class="list-group">
+                                {% for usuario in rol.usuarios %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ usuario.nombre_completo }}</h6>
+                                        <small>{{ usuario.correo }}</small>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="list-group-item">
+                                    <p class="mb-0">No hay usuarios asignados a este rol</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

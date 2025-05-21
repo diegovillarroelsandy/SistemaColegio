@@ -1,0 +1,72 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Roles</h5>
+                <a href="{{ url_for('admin.nuevo_rol_predefinido') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i> Nuevo Rol
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Usuarios Asignados</th>
+                                <th>Fecha de Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rol in roles %}
+                            <tr>
+                                <td>{{ rol.nombre }}</td>
+                                <td>{{ rol.descripcion if rol.descripcion else 'Sin descripción' }}</td>
+                                <td>{{ rol.usuarios.count() }}</td>
+                                <td>
+    {% if rol.fecha_creacion %}
+        {{ rol.fecha_creacion.strftime('%Y-%m-%d') }}
+    {% else %}
+        Sin fecha de creación
+    {% endif %}
+</td>
+                                <td>
+                                    {% if rol.nombre in ['administrador', 'docente', 'estudiante'] %}
+                                        <a href="{{ url_for('admin.ver_rol', id=rol.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('admin.ver_rol', id=rol.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </a>
+                                        <a href="{{ url_for('admin.eliminar_rol', id=rol.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este rol?')">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function eliminarRol(nombre, id) {
+    if (confirm(`¿Estás seguro de eliminar el rol "${nombre}"?\n\nEsta acción no se puede deshacer.`)) {
+        window.location.href = `/admin/roles/${id}/eliminar`;
+    }
+}
+</script>
+{% endblock %}
