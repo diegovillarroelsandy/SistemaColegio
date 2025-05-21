@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Contenido</h5>
+                    <a href="{{ url_for('docentes.index') }}" class="btn btn-secondary">Volver</a>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <form method="POST" action="{{ url_for('docentes.contenido') }}">
+                                <div class="mb-3">
+                                    <label for="titulo" class="form-label">Título</label>
+                                    <input type="text" class="form-control" id="titulo" name="titulo" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="descripcion" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="archivo_url" class="form-label">URL del Archivo</label>
+                                    <input type="url" class="form-control" id="archivo_url" name="archivo_url" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tipo_contenido" class="form-label">Tipo de Contenido</label>
+                                    <select class="form-select" id="tipo_contenido" name="tipo_contenido" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option value="video">Video</option>
+                                        <option value="documento">Documento</option>
+                                        <option value="presentacion">Presentación</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="grado_destinado_id" class="form-label">Grado Destinado</label>
+                                    <select class="form-select" id="grado_destinado_id" name="grado_destinado_id" required>
+                                        <option value="">Seleccionar...</option>
+                                        {% for grado in grados %}
+                                        <option value="{{ grado.id }}">{{ grado.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Crear Contenido</button>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Título</th>
+                                            <th>Grado</th>
+                                            <th>Tipo</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for contenido in contenidos %}
+                                        <tr>
+                                            <td>{{ contenido.titulo }}</td>
+                                            <td>{{ contenido.grado_destinado.nombre if contenido.grado_destinado }}</td>
+                                            <td>{{ contenido.tipo_contenido }}</td>
+                                            <td>
+                                                {% if contenido.validado %}
+                                                <span class="badge bg-success">Validado</span>
+                                                {% else %}
+                                                <span class="badge bg-warning">Pendiente</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

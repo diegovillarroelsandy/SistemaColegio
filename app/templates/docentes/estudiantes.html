@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Estudiantes</h5>
+                    <a href="{{ url_for('docentes.index') }}" class="btn btn-secondary">Volver</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Grado</th>
+                                    <th>Sección</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for estudiante in estudiantes %}
+                                <tr>
+                                    <td>{{ estudiante.usuario.nombre_completo }}</td>
+                                    <td>{{ estudiante.usuario.correo }}</td>
+                                    <td>{{ estudiante.grado.nombre if estudiante.grado }}</td>
+                                    <td>{{ estudiante.seccion }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#verCalificaciones{{ estudiante.id }}">
+                                            Ver Calificaciones
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for estudiante in estudiantes %}
+<div class="modal fade" id="verCalificaciones{{ estudiante.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Calificaciones de {{ estudiante.usuario.nombre_completo }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Ejercicio</th>
+                                <th>Fecha</th>
+                                <th>Calificación</th>
+                                <th>Comentarios</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for respuesta in estudiante.respuestas %}
+                            <tr>
+                                <td>{{ respuesta.ejercicio.titulo }}</td>
+                                <td>{{ respuesta.fecha_respuesta.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if respuesta.correcta is not none %}
+                                        {{ "Correcta" if respuesta.correcta else "Incorrecta" }}
+                                    {% else %}
+                                        Pendiente
+                                    {% endif %}
+                                </td>
+                                <td>{{ respuesta.retroalimentacion }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
