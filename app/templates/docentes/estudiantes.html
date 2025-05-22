@@ -1,89 +1,72 @@
-{% extends "base.html" %}
+{% extends "docentes/base.html" %}
+
+{% block title %}Estudiantes - Panel de Docente{% endblock %}
+
+{% block role %}Docente{% endblock %}
+
+{% block sidebar_content %}
+<a href="{{ url_for('docentes.index') }}" class="sidebar-link">
+    <i class="fas fa-home"></i>
+    <span>Inicio</span>
+</a>
+<a href="{{ url_for('docentes.estudiantes') }}" class="sidebar-link active">
+    <i class="fas fa-users"></i>
+    <span>Estudiantes</span>
+</a>
+<a href="{{ url_for('docentes.contenido') }}" class="sidebar-link">
+    <i class="fas fa-book"></i>
+    <span>Contenido</span>
+</a>
+<a href="{{ url_for('docentes.ejercicios') }}" class="sidebar-link">
+    <i class="fas fa-tasks"></i>
+    <span>Ejercicios</span>
+</a>
+<a href="{{ url_for('docentes.calificaciones') }}" class="sidebar-link">
+    <i class="fas fa-chart-bar"></i>
+    <span>Calificaciones</span>
+</a>
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5>Estudiantes</h5>
-                    <a href="{{ url_for('docentes.index') }}" class="btn btn-secondary">Volver</a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Correo</th>
-                                    <th>Grado</th>
-                                    <th>Sección</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for estudiante in estudiantes %}
-                                <tr>
-                                    <td>{{ estudiante.usuario.nombre_completo }}</td>
-                                    <td>{{ estudiante.usuario.correo }}</td>
-                                    <td>{{ estudiante.grado.nombre if estudiante.grado }}</td>
-                                    <td>{{ estudiante.seccion }}</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#verCalificaciones{{ estudiante.id }}">
-                                            Ver Calificaciones
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Lista de Estudiantes</h5>
+        </div>
+        <div class="card-body">
+            {% if estudiantes %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Grado</th>
+                            <th>Sección</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for estudiante in estudiantes %}
+                        <tr>
+                            <td>{{ estudiante.usuario.nombre_completo }}</td>
+                            <td>{{ estudiante.grado.nombre if estudiante.grado else 'No asignado' }}</td>
+                            <td>{{ estudiante.seccion }}</td>
+                            <td>
+                                <a href="{{ url_for('docentes.ver_estudiante', id=estudiante.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+            {% else %}
+            <div class="alert alert-info">
+                No hay estudiantes asignados a tu grado.
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
-
-{% for estudiante in estudiantes %}
-<div class="modal fade" id="verCalificaciones{{ estudiante.id }}" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Calificaciones de {{ estudiante.usuario.nombre_completo }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Ejercicio</th>
-                                <th>Fecha</th>
-                                <th>Calificación</th>
-                                <th>Comentarios</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for respuesta in estudiante.respuestas %}
-                            <tr>
-                                <td>{{ respuesta.ejercicio.titulo }}</td>
-                                <td>{{ respuesta.fecha_respuesta.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td>
-                                    {% if respuesta.correcta is not none %}
-                                        {{ "Correcta" if respuesta.correcta else "Incorrecta" }}
-                                    {% else %}
-                                        Pendiente
-                                    {% endif %}
-                                </td>
-                                <td>{{ respuesta.retroalimentacion }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
 {% endblock %}

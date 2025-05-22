@@ -87,3 +87,17 @@ def calificaciones():
     grado_id = current_user.docente.grado_id if current_user.docente else None
     estudiantes = Estudiante.query.filter_by(grado_id=grado_id).all()
     return render_template('docentes/calificaciones.html', estudiantes=estudiantes)
+
+
+@docentes_bp.route('/estudiante/<int:id>')
+@login_required
+@teacher_required
+def ver_estudiante(id):
+    estudiante = Estudiante.query.get_or_404(id)
+    # Verificar que el estudiante pertenece al grado del docente
+    if estudiante.grado_id != current_user.docente.grado_id:
+        flash('No tienes permiso para ver este estudiante', 'error')
+        return redirect(url_for('docentes.estudiantes'))
+    return render_template('docentes/ver.html', estudiante=estudiante)
+
+
