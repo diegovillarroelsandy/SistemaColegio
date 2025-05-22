@@ -259,10 +259,10 @@
         {% block sidebar %}
         <nav class="sidebar">
             <div class="sidebar-header">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo Colegio" class="me-2" style="width: 40px; height: 40px;">
                 <div>
-                    <h5>Sistema Colegio</h5>
-                    <small>{% block role %}{% endblock %}</small>
+                    <h5>{% block role %}Docente{% endblock %}</h5>
+                    <small>{{ current_user.nombre_completo }}</small>
                 </div>
             </div>
             {% block sidebar_content %}{% endblock %}
