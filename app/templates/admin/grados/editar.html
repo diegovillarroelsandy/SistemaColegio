@@ -18,9 +18,16 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="nombre" class="form-label">Nombre del Grado</label>
-                                    <input type="text" class="form-control" id="nombre" name="nombre" 
-                                           value="{{ grado.nombre }}" required>
+                                    <label for="nombre" class="form-label">Grado</label>
+                                    <select class="form-select" id="nombre" name="nombre" required>
+                                        <option value="" disabled {% if not grado.nombre %}selected{% endif %}>Seleccione un grado</option>
+                                        <option value="1° Básico" {% if grado.nombre == '1° Básico' %}selected{% endif %}>1° Básico</option>
+                                        <option value="2° Básico" {% if grado.nombre == '2° Básico' %}selected{% endif %}>2° Básico</option>
+                                        <option value="3° Básico" {% if grado.nombre == '3° Básico' %}selected{% endif %}>3° Básico</option>
+                                        <option value="4° Básico" {% if grado.nombre == '4° Básico' %}selected{% endif %}>4° Básico</option>
+                                        <option value="5° Básico" {% if grado.nombre == '5° Básico' %}selected{% endif %}>5° Básico</option>
+                                        <option value="6° Básico" {% if grado.nombre == '6° Básico' %}selected{% endif %}>6° Básico</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-6">

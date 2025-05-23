@@ -120,6 +120,7 @@ class Ejercicio(db.Model):
     tipo_interaccion = db.Column(db.String(50))
     grado_destinado_id = db.Column(db.Integer, db.ForeignKey('grados.id', ondelete='SET NULL'))
     docente_id = db.Column(db.Integer, db.ForeignKey('docentes.id', ondelete='SET NULL'))
+    archivo_url = db.Column(db.String(255), nullable=True)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
     respuestas = db.relationship('RespuestaEstudiante', backref='ejercicio', lazy=True)
 

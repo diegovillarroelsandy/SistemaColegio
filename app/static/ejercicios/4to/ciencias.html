@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ciencias Naturales - 4to Grado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e8f5e9;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .question-container {
+            background-color: #f1f8e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .question {
+            font-size: 1.5em;
+            color: #1b5e20;
+            margin: 0;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        .option {
+            padding: 15px 20px;
+            font-size: 1.1em;
+            background-color: #c8e6c9;
+            border: 2px solid #81c784;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .option:hover {
+            background-color: #a5d6a7;
+            transform: translateY(-2px);
+        }
+        .option.correct {
+            background-color: #a5d6a7;
+            border-color: #2e7d32;
+            color: #1b5e20;
+        }
+        .option.incorrect {
+            background-color: #ffcdd2;
+            border-color: #e57373;
+            color: #c62828;
+        }
+        .feedback {
+            font-size: 1.3em;
+            text-align: center;
+            min-height: 60px;
+            margin: 20px 0;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .correct-feedback {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #a5d6a7;
+        }
+        .incorrect-feedback {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 2px solid #ef9a9a;
+        }
+        .next-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            padding: 12px;
+            font-size: 1.2em;
+            background-color: #43a047;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+        }
+        .next-btn:hover {
+            background-color: #2e7d32;
+            transform: translateY(-2px);
+        }
+        .progress {
+            height: 12px;
+            margin-top: 20px;
+            border-radius: 6px;
+            background-color: #c8e6c9;
+        }
+        .progress-bar {
+            background-color: #2e7d32;
+        }
+        .question-image {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 15px auto;
+            display: block;
+            border-radius: 8px;
+            border: 2px solid #a5d6a7;
+        }
+        .hint {
+            font-style: italic;
+            color: #558b2f;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container game-container">
+        <h1 class="text-center mb-4">Ciencias Naturales <span class="badge bg-success">4to Grado</span></h1>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="score">Puntos: <span id="score">0</span></div>
+            <div class="progress w-50">
+                <div id="progress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div>Pregunta <span id="current">1</span>/10</div>
+        </div>
+        
+        <div class="question-container">
+            <div>
+                <img id="questionImage" class="question-image" style="display: none;" alt="Imagen de la pregunta">
+                <p class="question" id="question">Cargando preguntas...</p>
+                <p class="hint" id="hint"></p>
+            </div>
+        </div>
+        
+        <div class="options" id="options">
+            <!-- Las opciones se generarán con JavaScript -->
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <button class="next-btn" id="nextBtn">Siguiente Pregunta</button>
+    </div>
+
+    <script>
+        // Base de datos de preguntas de ciencias naturales
+        const preguntas = [
+            {
+                pregunta: "¿Cuál de estos es un órgano del sistema respiratorio?",
+                imagen: "https://www.nationalgeographic.com.es/medio/2019/03/12/sistema-respiratorio_8c0f9f2f_800x800.jpg",
+                opciones: ["Estómago", "Pulmón", "Hígado", "Riñón"],
+                respuesta: 1,
+                explicacion: "Los pulmones son los órganos principales del sistema respiratorio, encargados del intercambio de oxígeno y dióxido de carbono."
+            },
+            {
+                pregunta: "¿Qué tipo de animal es la ballena?",
+                imagen: "https://www.nationalgeographic.com.es/medio/2019/03/12/ballena-azul_8c0f9f2f_800x800.jpg",
+                opciones: ["Pez", "Anfibio", "Mamífero", "Reptil"],
+                respuesta: 2,
+                explicacion: "Aunque viven en el agua, las ballenas son mamíferos porque respiran aire, amamantan a sus crías y tienen sangre caliente."
+            },
+            {
+                pregunta: "¿Cuál es la capa más externa de la Tierra?",
+                imagen: "https://www.nationalgeographic.com.es/medio/2019/03/12/capas-tierra_8c0f9f2f_800x800.jpg",
+                opciones: ["Núcleo", "Manto", "Corteza", "Magma"],
+                respuesta: 2,
+                explicacion: "La corteza terrestre es la capa más externa y delgada de la Tierra, donde vivimos y ocurren los fenómenos geológicos superficiales."
+            },
+            {
+                pregunta: "¿Qué planeta es conocido como el 'planeta rojo'?",
+                imagen: "https://www.nasa.gov/sites/default/files/thumbnails/image/pia23791-1041.jpg",
+                opciones: ["Venus", "Júpiter", "Marte", "Saturno"],
+                respuesta: 2,
+                explicacion: "Marte es conocido como el planeta rojo debido al óxido de hierro en su superficie, que le da ese color característico."
+            },
+            {
+                pregunta: "¿Qué parte de la planta absorbe agua y nutrientes del suelo?",
+                imagen: "https://www.botanical-online.com/plantas/partes-raiz.jpg",
+                opciones: ["Hoja", "Flor", "Raíz", "Tallo"],
+                respuesta: 2,
+                explicacion: "La raíz es la parte de la planta que se encuentra bajo tierra y se encarga de absorber agua y nutrientes del suelo."
+            },
+            {
+                pregunta: "¿Qué gas necesitan las plantas para realizar la fotosíntesis?",
+                imagen: "https://www.ecologiaverde.com/images/thumbnail/1024/567/detalle-de-las-hojas-verdes-de-un-arbol-que-realiza-la-fotosintesis.jpg",
+                opciones: ["Oxígeno", "Hidrógeno", "Dióxido de carbono", "Nitrógeno"],
+                respuesta: 2,
+                explicacion: "Las plantas absorben dióxido de carbono (CO₂) del aire para realizar la fotosíntesis y liberan oxígeno como subproducto."
+            },
+            {
+                pregunta: "¿Cuál es el hueso más largo del cuerpo humano?",
+                imagen: "https://www.elsevier.com/__data/assets/image/0007/643258/femur-anatomy.jpg",
+                opciones: ["Húmero", "Fémur", "Tibia", "Peroné"],
+                respuesta: 1,
+                explicacion: "El fémur, ubicado en el muslo, es el hueso más largo y fuerte del cuerpo humano."
+            },
+            {
+                pregunta: "¿Qué tipo de energía produce el sol?",
+                imagen: "https://www.energias-renovables.com/archivo/energias-renovables/el-sol-una-fuente-de-energia-20191112121218.jpg",
+                opciones: ["Eléctrica", "Térmica", "Nuclear", "Solar"],
+                respuesta: 3,
+                explicacion: "El sol produce energía a través de reacciones nucleares de fusión en su núcleo, convirtiendo hidrógeno en helio."
+            },
+            {
+                pregunta: "¿Cuál de estos animales es un invertebrado?",
+                imagen: "https://www.nationalgeographic.com.es/medio/2019/03/12/medusa_8c0f9f2f_800x800.jpg",
+                opciones: ["Pez", "Rana", "Medusa", "Lagarto"],
+                respuesta: 2,
+                explicacion: "Las medusas son animales invertebrados que pertenecen al grupo de los cnidarios, no tienen columna vertebral."
+            },
+            {
+                pregunta: "¿Qué gas es el más abundante en la atmósfera terrestre?",
+                imagen: "https://www.nationalgeographic.com.es/medio/2019/03/12/atmosfera-tierra_8c0f9f2f_800x800.jpg",
+                opciones: ["Oxígeno", "Dióxido de carbono", "Nitrógeno", "Argón"],
+                respuesta: 2,
+                explicacion: "El nitrógeno (N₂) es el gas más abundante en la atmósfera terrestre, representando aproximadamente el 78% de su composición."
+            }
+        ];
+
+        let score = 0;
+        let currentQuestion = 0;
+        const totalQuestions = 10;
+        let currentCorrectAnswer = 0;
+        let shuffledQuestions = [];
+
+        // Elementos del DOM
+        const questionElement = document.getElementById('question');
+        const questionImage = document.getElementById('questionImage');
+        const hintElement = document.getElementById('hint');
+        const optionsElement = document.getElementById('options');
+        const feedbackElement = document.getElementById('feedback');
+        const nextButton = document.getElementById('nextBtn');
+        const scoreElement = document.getElementById('score');
+        const currentElement = document.getElementById('current');
+        const progressElement = document.getElementById('progress');
+
+        // Inicializar el juego
+        function initGame() {
+            // Mezclar preguntas
+            shuffledQuestions = [...preguntas];
+            shuffleArray(shuffledQuestions);
+            
+            // Tomar solo las primeras 10 preguntas
+            shuffledQuestions = shuffledQuestions.slice(0, 10);
+            
+            // Mostrar la primera pregunta
+            showQuestion(0);
+        }
+
+        // Mostrar una pregunta
+        function showQuestion(index) {
+            if (index >= shuffledQuestions.length) {
+                endGame();
+                return;
+            }
+            
+            const question = shuffledQuestions[index];
+            
+            // Actualizar la interfaz
+            questionElement.textContent = question.pregunta;
+            
+            // Mostrar imagen si está disponible
+            if (question.imagen) {
+                questionImage.src = question.imagen;
+                questionImage.style.display = 'block';
+            } else {
+                questionImage.style.display = 'none';
+            }
+            
+            // Ocultar pista inicialmente
+            hintElement.textContent = '';
+            
+            // Generar opciones de respuesta
+            optionsElement.innerHTML = '';
+            question.opciones.forEach((opcion, i) => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = opcion;
+                button.onclick = () => selectAnswer(i);
+                optionsElement.appendChild(button);
+            });
+            
+            // Guardar la respuesta correcta
+            currentCorrectAnswer = question.respuesta;
+            
+            // Actualizar barra de progreso
+            const progress = (index / totalQuestions) * 100;
+            progressElement.style.width = `${progress}%`;
+            
+            // Actualizar contador de preguntas
+            currentElement.textContent = index + 1;
+            
+            // Ocultar botón de siguiente
+            nextButton.style.display = 'none';
+            
+            // Limpiar retroalimentación
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+        }
+        
+        // Seleccionar una respuesta
+        function selectAnswer(selectedIndex) {
+            const options = document.querySelectorAll('.option');
+            const currentQuestionObj = shuffledQuestions[currentQuestion];
+            
+            // Deshabilitar todos los botones
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            // Marcar respuesta correcta
+            options[currentCorrectAnswer].classList.add('correct');
+            
+            // Verificar si la respuesta es correcta
+            if (selectedIndex === currentCorrectAnswer) {
+                options[selectedIndex].classList.add('correct');
+                feedbackElement.textContent = '¡Correcto! ' + currentQuestionObj.explicacion;
+                feedbackElement.className = 'feedback correct-feedback';
+                score += 10;
+                scoreElement.textContent = score;
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                feedbackElement.textContent = `Incorrecto. ${currentQuestionObj.explicacion}`;
+                feedbackElement.className = 'feedback incorrect-feedback';
+            }
+            
+            // Mostrar pista
+            hintElement.textContent = currentQuestionObj.explicacion;
+            
+            // Mostrar botón de siguiente
+            nextButton.style.display = 'block';
+        }
+        
+        // Siguiente pregunta
+        nextButton.onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < shuffledQuestions.length) {
+                showQuestion(currentQuestion);
+            } else {
+                endGame();
+            }
+        };
+        
+        // Finalizar el juego
+        function endGame() {
+            const result = Math.round((score / (totalQuestions * 10)) * 100);
+            
+            // Crear elementos para mostrar los resultados
+            const resultContainer = document.createElement('div');
+            resultContainer.className = 'text-center';
+            resultContainer.style.padding = '30px';
+            resultContainer.style.borderRadius = '10px';
+            resultContainer.style.backgroundColor = '#e8f5e9';
+            resultContainer.style.border = '2px solid #a5d6a7';
+            
+            let message = '';
+            let emoji = '';
+            
+            if (result >= 80) {
+                message = '¡Excelente trabajo! Eres un experto en ciencias.';
+                emoji = '🎉';
+            } else if (result >= 60) {
+                message = '¡Buen trabajo! Sigue aprendiendo.';
+                emoji = '👍';
+            } else {
+                message = '¡Sigue practicando! La ciencia es fascinante.';
+                emoji = '🔬';
+            }
+            
+            resultContainer.innerHTML = `
+                <h3>¡Juego Terminado! ${emoji}</h3>
+                <p>Tu puntuación final es: <strong>${score} / ${totalQuestions * 10}</strong></p>
+                <p>Porcentaje de aciertos: <strong>${result}%</strong></p>
+                <p>${message}</p>
+                <button class="btn btn-success btn-lg mt-3" onclick="window.location.reload()">
+                    Jugar de nuevo
+                </button>
+            `;
+            
+            // Reemplazar el contenido del juego con los resultados
+            document.querySelector('.game-container').innerHTML = '';
+            document.querySelector('.game-container').appendChild(resultContainer);
+        }
+        
+        // Mezclar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Iniciar el juego cuando se cargue la página
+        window.onload = initGame;
+    </script>
+</body>
+</html>

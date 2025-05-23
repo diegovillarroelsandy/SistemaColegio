@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formando Palabras - 2do Grado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f0fff0;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        .score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .word-display {
+            font-size: 2em;
+            margin: 30px 0;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .syllable {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 5px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2em;
+        }
+        .syllable:hover {
+            background-color: #bbdefb;
+            transform: translateY(-3px);
+        }
+        .selected {
+            background-color: #bbdefb;
+            border: 2px solid #2196f3;
+        }
+        .syllable-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            min-height: 100px;
+            align-items: center;
+        }
+        .feedback {
+            font-size: 1.5em;
+            text-align: center;
+            min-height: 50px;
+            margin: 20px 0;
+        }
+        .correct {
+            color: #27ae60;
+        }
+        .incorrect {
+            color: #e74c3c;
+        }
+        .btn-check {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            padding: 15px;
+            font-size: 1.2em;
+        }
+        .progress {
+            height: 10px;
+            margin-top: 20px;
+        }
+        .hint {
+            text-align: center;
+            font-style: italic;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container game-container">
+        <h1 class="text-center mb-4">Formando Palabras <span class="badge bg-success">2do Grado</span></h1>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="score">Puntos: <span id="score">0</span></div>
+            <div class="progress w-50">
+                <div id="progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div>Palabra <span id="current">1</span>/8</div>
+        </div>
+        
+        <div class="hint" id="hint">
+            Arma la palabra correcta usando las sílabas de abajo.
+        </div>
+        
+        <div class="word-display" id="wordDisplay">
+            <!-- Las sílabas seleccionadas aparecerán aquí -->
+        </div>
+        
+        <div class="syllable-bank" id="syllableBank">
+            <!-- Las sílabas disponibles se generarán aquí -->
+        </div>
+        
+        <button class="btn btn-primary btn-check" id="checkBtn">Comprobar</button>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <button class="btn btn-success btn-check" id="nextBtn" style="display: none;">Siguiente Palabra</button>
+    </div>
+
+    <script>
+        let score = 0;
+        let currentWord = 0;
+        const totalWords = 8;
+        let selectedSyllables = [];
+        let currentAnswer = '';
+        let currentHint = '';
+
+        // Palabras y sus sílabas
+        const words = [
+            { word: 'casa', syllables: ['ca', 'sa'], hint: 'Lugar donde vives' },
+            { word: 'mesa', syllables: ['me', 'sa'], hint: 'Mueble para comer' },
+            { word: 'silla', syllables: ['si', 'lla'], hint: 'En ella te sientas' },
+            { word: 'libro', syllables: ['li', 'bro'], hint: 'Tiene páginas para leer' },
+            { word: 'lápiz', syllables: ['lá', 'piz'], hint: 'Con punta de grafito' },
+            { word: 'gato', syllables: ['ga', 'to'], hint: 'Animal que maúlla' },
+            { word: 'perro', syllables: ['pe', 'rro'], hint: 'Mejor amigo del hombre' },
+            { word: 'sol', syllables: ['sol'], hint: 'Brilla en el cielo de día' }
+        ];
+
+        // Elementos del DOM
+        const wordDisplay = document.getElementById('wordDisplay');
+        const syllableBank = document.getElementById('syllableBank');
+        const feedbackElement = document.getElementById('feedback');
+        const checkButton = document.getElementById('checkBtn');
+        const nextButton = document.getElementById('nextBtn');
+        const scoreElement = document.getElementById('score');
+        const currentElement = document.getElementById('current');
+        const progressElement = document.getElementById('progress');
+        const hintElement = document.getElementById('hint');
+
+        // Mezclar el array de palabras
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Inicializar el juego
+        function initGame() {
+            // Mezclar las palabras
+            shuffleArray(words);
+            currentWord = 0;
+            score = 0;
+            scoreElement.textContent = score;
+            loadWord();
+        }
+
+        // Cargar una nueva palabra
+        function loadWord() {
+            if (currentWord >= totalWords) {
+                // Juego terminado
+                wordDisplay.innerHTML = `
+                    <div class="text-center w-100">
+                        <h3>¡Juego Terminado!</h3>
+                        <p>Tu puntuación final es: <strong>${score} / ${totalWords * 10}</strong></p>
+                        <p>¡Excelente trabajo! 🎉</p>
+                        <button class="btn btn-primary mt-3" onclick="window.location.reload()">Jugar de nuevo</button>
+                    </div>
+                `;
+                syllableBank.style.display = 'none';
+                checkButton.style.display = 'none';
+                nextButton.style.display = 'none';
+                feedbackElement.style.display = 'none';
+                return;
+            }
+
+            const current = words[currentWord];
+            currentAnswer = current.word;
+            currentHint = current.hint;
+            
+            // Mostrar pista
+            hintElement.textContent = `Pista: ${currentHint}`;
+            
+            // Limpiar displays
+            wordDisplay.innerHTML = '';
+            syllableBank.innerHTML = '';
+            
+            // Crear sílabas desordenadas
+            let syllables = [...current.syllables];
+            
+            // Añadir sílabas adicionales para hacerlo más desafiante
+            const extraSyllables = ['ma', 'pa', 'lo', 'ni', 'tu', 'ra', 'co', 'mi'];
+            while (syllables.length < 6) {
+                const randomSyllable = extraSyllables[Math.floor(Math.random() * extraSyllables.length)];
+                if (!syllables.includes(randomSyllable)) {
+                    syllables.push(randomSyllable);
+                }
+            }
+            
+            // Mezclar sílabas
+            shuffleArray(syllables);
+            
+            // Mostrar sílabas en el banco
+            syllables.forEach(syllable => {
+                const syllableElement = document.createElement('div');
+                syllableElement.className = 'syllable';
+                syllableElement.textContent = syllable;
+                syllableElement.onclick = () => selectSyllable(syllable, syllableElement);
+                syllableBank.appendChild(syllableElement);
+            });
+            
+            // Actualizar barra de progreso
+            const progress = (currentWord / totalWords) * 100;
+            progressElement.style.width = `${progress}%`;
+            
+            // Actualizar contador de palabras
+            currentElement.textContent = currentWord + 1;
+            
+            // Restablecer botones
+            checkButton.style.display = 'block';
+            nextButton.style.display = 'none';
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            
+            // Reiniciar sílabas seleccionadas
+            selectedSyllables = [];
+        }
+
+        // Seleccionar una sílaba
+        function selectSyllable(syllable, element) {
+            // Si la sílaba ya está seleccionada, quitarla
+            const index = selectedSyllables.indexOf(element);
+            if (index > -1) {
+                element.classList.remove('selected');
+                selectedSyllables.splice(index, 1);
+                updateWordDisplay();
+                return;
+            }
+            
+            // Si no está seleccionada, añadirla
+            element.classList.add('selected');
+            selectedSyllables.push(element);
+            updateWordDisplay();
+        }
+
+        // Actualizar la visualización de la palabra
+        function updateWordDisplay() {
+            wordDisplay.innerHTML = '';
+            selectedSyllables.forEach(syllable => {
+                const span = document.createElement('span');
+                span.className = 'syllable selected';
+                span.textContent = syllable.textContent;
+                wordDisplay.appendChild(span);
+            });
+        }
+
+        // Comprobar la respuesta
+        function checkAnswer() {
+            const userAnswer = selectedSyllables.map(s => s.textContent).join('');
+            const correctAnswer = words[currentWord].word;
+            
+            // Deshabilitar todas las sílabas
+            const syllables = document.querySelectorAll('.syllable');
+            syllables.forEach(s => s.style.pointerEvents = 'none');
+            
+            // Mostrar retroalimentación
+            if (userAnswer === correctAnswer) {
+                feedbackElement.textContent = '¡Correcto! ¡Buen trabajo!';
+                feedbackElement.className = 'feedback correct';
+                score += 10;
+                scoreElement.textContent = score;
+            } else {
+                feedbackElement.textContent = `¡Casi! La palabra correcta es "${correctAnswer}".`;
+                feedbackElement.className = 'feedback incorrect';
+                
+                // Resaltar las sílabas correctas
+                const correctSyllables = words[currentWord].syllables;
+                syllables.forEach(s => {
+                    if (correctSyllables.includes(s.textContent)) {
+                        s.style.backgroundColor = '#a5d6a7';
+                    }
+                });
+            }
+            
+            checkButton.style.display = 'none';
+            nextButton.style.display = 'block';
+        }
+
+        // Event listeners
+        checkButton.onclick = checkAnswer;
+        
+        nextButton.onclick = () => {
+            currentWord++;
+            loadWord();
+        };
+        
+        // Iniciar el juego
+        initGame();
+    </script>
+</body>
+</html>

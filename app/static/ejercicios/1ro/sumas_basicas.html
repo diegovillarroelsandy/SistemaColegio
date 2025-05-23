@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sumas Básicas - 1er Grado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f0f8ff;
+        }
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        .score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .problem {
+            font-size: 2.5em;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .option {
+            padding: 15px;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 10px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+        .feedback {
+            font-size: 1.5em;
+            text-align: center;
+            min-height: 50px;
+            margin: 20px 0;
+        }
+        .correct {
+            color: #27ae60;
+        }
+        .incorrect {
+            color: #e74c3c;
+        }
+        .next-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: none;
+        }
+        .next-btn:hover {
+            background-color: #27ae60;
+        }
+        .progress {
+            height: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container game-container">
+        <h1 class="text-center mb-4">¡Aprende a Sumar! <span class="badge bg-primary">1er Grado</span></h1>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="score">Puntos: <span id="score">0</span></div>
+            <div class="progress w-50">
+                <div id="progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div>Pregunta <span id="current">1</span>/10</div>
+        </div>
+        
+        <div class="problem" id="problem">3 + 4 = ?</div>
+        
+        <div class="options" id="options">
+            <!-- Las opciones se generarán con JavaScript -->
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <button class="next-btn" id="nextBtn">Siguiente Pregunta</button>
+    </div>
+
+    <script>
+        let score = 0;
+        let currentQuestion = 0;
+        const totalQuestions = 10;
+        let correctAnswer;
+
+        // Elementos del DOM
+        const problemElement = document.getElementById('problem');
+        const optionsElement = document.getElementById('options');
+        const feedbackElement = document.getElementById('feedback');
+        const nextButton = document.getElementById('nextBtn');
+        const scoreElement = document.getElementById('score');
+        const currentElement = document.getElementById('current');
+        const progressElement = document.getElementById('progress');
+
+        // Generar una pregunta de suma
+        function generateQuestion() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            correctAnswer = num1 + num2;
+            
+            // Mostrar el problema
+            problemElement.textContent = `${num1} + ${num2} = ?`;
+            
+            // Generar opciones de respuesta
+            const options = [correctAnswer];
+            while (options.length < 4) {
+                const randomOption = Math.floor(Math.random() * 20) + 1;
+                if (!options.includes(randomOption)) {
+                    options.push(randomOption);
+                }
+            }
+            
+            // Mezclar opciones
+            options.sort(() => Math.random() - 0.5);
+            
+            // Mostrar opciones
+            optionsElement.innerHTML = '';
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(option);
+                optionsElement.appendChild(button);
+            });
+            
+            // Actualizar barra de progreso
+            const progress = (currentQuestion / totalQuestions) * 100;
+            progressElement.style.width = `${progress}%`;
+            
+            // Actualizar contador de preguntas
+            currentElement.textContent = currentQuestion + 1;
+        }
+        
+        // Verificar respuesta
+        function checkAnswer(selectedOption) {
+            const optionButtons = document.querySelectorAll('.option');
+            
+            // Deshabilitar todos los botones
+            optionButtons.forEach(button => {
+                button.disabled = true;
+                
+                // Marcar la respuesta correcta en verde
+                if (parseInt(button.textContent) === correctAnswer) {
+                    button.style.backgroundColor = '#27ae60';
+                }
+                
+                // Marcar la respuesta incorrecta en rojo
+                if (button.textContent === selectedOption.toString() && selectedOption !== correctAnswer) {
+                    button.style.backgroundColor = '#e74c3c';
+                }
+            });
+            
+            // Mostrar retroalimentación
+            if (selectedOption === correctAnswer) {
+                feedbackElement.textContent = '¡Correcto! ¡Buen trabajo!';
+                feedbackElement.className = 'feedback correct';
+                score += 10;
+                scoreElement.textContent = score;
+            } else {
+                feedbackElement.textContent = `¡Casi! La respuesta correcta es ${correctAnswer}.`;
+                feedbackElement.className = 'feedback incorrect';
+            }
+            
+            // Mostrar botón de siguiente
+            nextButton.style.display = 'block';
+        }
+        
+        // Siguiente pregunta
+        nextButton.onclick = () => {
+            currentQuestion++;
+            
+            if (currentQuestion < totalQuestions) {
+                // Generar nueva pregunta
+                generateQuestion();
+                
+                // Restablecer la interfaz
+                feedbackElement.textContent = '';
+                feedbackElement.className = 'feedback';
+                nextButton.style.display = 'none';
+            } else {
+                // Juego terminado
+                const result = Math.round((score / (totalQuestions * 10)) * 100);
+                problemElement.innerHTML = `
+                    <h3>¡Juego Terminado!</h3>
+                    <p>Tu puntuación final es: <strong>${score} / ${totalQuestions * 10}</strong></p>
+                    <p>Porcentaje de aciertos: <strong>${result}%</strong></p>
+                    <p>${result >= 70 ? '¡Excelente trabajo! 🎉' : '¡Sigue practicando! 💪'}</p>
+                    <button class="btn btn-primary mt-3" onclick="window.location.reload()">Jugar de nuevo</button>
+                `;
+                optionsElement.style.display = 'none';
+                nextButton.style.display = 'none';
+                feedbackElement.style.display = 'none';
+            }
+        };
+        
+        // Iniciar el juego
+        generateQuestion();
+    </script>
+</body>
+</html>
