@@ -17,12 +17,18 @@
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card text-white bg-success mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Calificaciones</h5>
-          <p class="card-text">Consulta tus notas por curso.</p>
+      <a
+        href="{{ url_for('estudiantes.notas') }}"
+        class="card-link"
+        style="text-decoration: none; color: inherit"
+      >
+        <div class="card text-white bg-success mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Calificaciones</h5>
+            <p class="card-text">Consulta tus notas por curso.</p>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
     <div class="col-md-4">
       <div class="card text-white bg-info mb-3">

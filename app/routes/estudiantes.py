@@ -15,6 +15,5 @@ def index():
 @login_required
 @student_required
 def notas():
-    
     return render_template('estudiantes/notas/index.html')
 

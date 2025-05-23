@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mis Calificaciones</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2 class="mb-4">Calificaciones de {{ current_user.nombre_completo }}</h2>
+
+      {% if grades %}
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col">Materia</th>
+              <th scope="col">Parcial 1</th>
+              <th scope="col">Parcial 2</th>
+              <th scope="col">Examen Final</th>
+              <th scope="col">Nota Final</th>
+              <th scope="col">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for grade in grades %}
+            <tr>
+              <td>{{ grade.materia }}</td>
+              <td>{{ grade.parcial1 }}</td>
+              <td>{{ grade.parcial2 }}</td>
+              <td>{{ grade.examen_final }}</td>
+              <td>{{ grade.nota_final }}</td>
+              <td>
+                {% if grade.nota_final >= 51 %} {# Assuming 51 is the passing
+                grade #}
+                <span class="badge bg-success">Aprobado</span>
+                {% else %}
+                <span class="badge bg-danger">Reprobado</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="alert alert-info" role="alert">
+        Aún no tienes calificaciones registradas.
+      </div>
+      {% endif %}
+
+      <div class="mt-4">
+        <a href="{{ url_for('estudiantes.index') }}" class="btn btn-secondary"
+          >Volver al Panel</a
+        >
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
