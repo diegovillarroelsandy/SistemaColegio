@@ -132,3 +132,15 @@ class RespuestaEstudiante(db.Model):
     correcta = db.Column(db.Boolean)
     retroalimentacion = db.Column(db.Text)
     fecha_respuesta = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Nota(db.Model):
+    __tablename__ = 'notas'
+    id = db.Column(db.Integer, primary_key=True)
+    estudiante_id = db.Column(db.Integer, db.ForeignKey('estudiantes.id', ondelete='CASCADE'))
+    docente_id = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete='SET NULL'))
+    asignatura = db.Column(db.String(100), nullable=False)
+    valor = db.Column(db.Float, nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+
+    estudiante = db.relationship('Estudiante', backref=db.backref('notas', lazy=True))
+    docente = db.relationship('Usuario', backref=db.backref('notas_asignadas', lazy=True))
