@@ -1,6 +1,11 @@
-{% extends "docentes/base.html" %} {% block title %}Panel de Docente - Sistema
-Colegio{% endblock %} {% block role %}Docente{% endblock %} {% block
-sidebar_content %}
+
+{% extends "docentes/base.html" %}
+
+{% block title %}Panel de Docente - Sistema Colegio{% endblock %}
+
+{% block role %}Docente{% endblock %}
+
+{% block sidebar_content %}
 <a href="{{ url_for('docentes.index') }}" class="sidebar-link active">
   <i class="fas fa-home"></i>
   <span>Inicio</span>
