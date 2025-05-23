@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Química Divertida - 6to Grado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #9c27b0;
+            --primary-dark: #7b1fa2;
+            --secondary: #ff9800;
+            --light: #f3e5f5;
+            --dark: #4a148c;
+            --success: #4caf50;
+            --error: #f44336;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .game-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #e1bee7;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header .badge {
+            background: var(--secondary);
+            color: #333;
+            font-size: 1rem;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 10px;
+            display: inline-block;
+            font-weight: 600;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .score {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--light);
+            padding: 8px 20px;
+            border-radius: 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .progress-container {
+            flex-grow: 1;
+            margin: 0 20px;
+        }
+        
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .question-container {
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .question-category {
+            display: inline-block;
+            background: var(--light);
+            color: var(--primary);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .question {
+            font-size: 1.6rem;
+            color: #333;
+            margin: 20px 0 30px;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 1.1rem;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+        
+        .option.correct {
+            background: #e8f5e9;
+            border-color: var(--success);
+            color: var(--success);
+        }
+        
+        .option.incorrect {
+            background: #ffebee;
+            border-color: var(--error);
+            color: var(--error);
+        }
+        
+        .element-symbol {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .feedback {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .feedback.correct {
+            background: #e8f5e9;
+            color: var(--success);
+            border-left: 5px solid var(--success);
+        }
+        
+        .feedback.incorrect {
+            background: #ffebee;
+            color: var(--error);
+            border-left: 5px solid var(--error);
+        }
+        
+        .next-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            background: var(--primary);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+        }
+        
+        .next-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
+        }
+        
+        .next-btn:disabled {
+            background: #b39ddb;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .periodic-table {
+            max-width: 100%;
+            margin: 20px auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .element-image {
+            max-width: 200px;
+            margin: 15px auto;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .result-container {
+            text-align: center;
+            padding: 40px 20px;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .result-container h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .result-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 20px 0;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .result-message {
+            font-size: 1.3rem;
+            color: #555;
+            margin: 20px 0 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        
+        .restart-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+        }
+        
+        .restart-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
+        }
+        
+        .emoji {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .question {
+                font-size: 1.3rem;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .score-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .progress-container {
+                width: 100%;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Química Divertida</h1>
+            <span class="badge">6to Grado</span>
+        </div>
+        
+        <div id="gameArea">
+            <div class="score-container">
+                <div class="score">Puntos: <span id="score">0</span></div>
+                <div class="progress-container">
+                    <div class="progress">
+                        <div id="progress" class="progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div>Pregunta <span id="current">1</span>/10</div>
+            </div>
+            
+            <div class="question-container">
+                <span class="question-category" id="questionCategory">Tabla Periódica</span>
+                <img id="questionImage" class="element-image" style="display: none;" alt="Elemento químico">
+                <p class="question" id="question">Cargando preguntas de química...</p>
+            </div>
+            
+            <div class="options" id="options">
+                <!-- Las opciones se generarán con JavaScript -->
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <button class="next-btn" id="nextBtn" disabled>Siguiente Pregunta</button>
+        </div>
+        
+        <div id="resultContainer" class="result-container" style="display: none;">
+            <!-- Los resultados se mostrarán aquí al finalizar -->
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de preguntas de química
+        const preguntas = [
+            {
+                pregunta: "¿Cuál es el símbolo químico del Oro?",
+                imagen: "https://www.thoughtco.com/thmb/8Z8Y2Q7WQ8JZ8Y2Q7WQ8JZ8Y2Q7WQ8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/gold-element-5c3b1f3c46e0fb0001f3b6e1.png",
+                opciones: ["Ag", "Au", "Or", "Go"],
+                respuesta: 1,
+                explicacion: "El símbolo químico del Oro es 'Au', que proviene de la palabra latina 'Aurum' que significa 'brillante amanecer'.",
+                categoria: "Elementos Químicos"
+            },
+            {
+                pregunta: "¿Qué gas es esencial para la respiración de los seres vivos?",
+                imagen: "https://www.thoughtco.com/thmb/8Z8Y2Q7WQ8JZ8Y2Q7WQ8JZ8Y2Q7WQ8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/oxygen-element-5c3b1f3c46e0fb0001f3b6e2.png",
+                opciones: ["Dióxido de Carbono (CO₂)", "Nitrógeno (N₂)", "Oxígeno (O₂)", "Hidrógeno (H₂)"],
+                respuesta: 2,
+                explicacion: "El Oxígeno (O₂) es esencial para la respiración de la mayoría de los seres vivos, permitiendo la producción de energía en las células.",
+                categoria: "Gases"
+            },
+            {
+                pregunta: "¿Cuál es el elemento más abundante en el universo?",
+                imagen: "https://www.thoughtco.com/thmb/8Z8Y2Q7WQ8JZ8Y2Q7WQ8JZ8Y2Q7WQ8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/hydrogen-element-5c3b1f3c46e0fb0001f3b6e0.png",
+                opciones: ["Oxígeno (O)", "Hidrógeno (H)", "Helio (He)", "Carbono (C)"],
+                respuesta: 1,
+                explicacion: "El Hidrógeno es el elemento más abundante en el universo, constituyendo aproximadamente el 75% de la materia bariónica.",
+                categoria: "Elementos Químicos"
+            },
+            {
+                pregunta: "¿Qué tipo de enlace químico comparten los electrones entre átomos?",
+                opciones: ["Iónico", "Covalente", "Metálico", "De hidrógeno"],
+                respuesta: 1,
+                explicacion: "En un enlace covalente, los átomos comparten uno o más pares de electrones para alcanzar la estabilidad.",
+                categoria: "Enlaces Químicos"
+            },
+            {
+                pregunta: "¿Cuál es el pH del agua pura a 25°C?",
+                opciones: ["0", "7", "10", "14"],
+                respuesta: 1,
+                explicacion: "El agua pura es neutra y tiene un pH de 7 a 25°C, lo que significa que tiene concentraciones iguales de iones H⁺ y OH⁻.",
+                categoria: "Ácidos y Bases"
+            },
+            {
+                pregunta: "¿Qué elemento tiene el símbolo químico 'Na'?",
+                opciones: ["Níquel", "Neón", "Sodio", "Nitrógeno"],
+                respuesta: 2,
+                explicacion: "El símbolo 'Na' corresponde al Sodio, que proviene de la palabra latina 'Natrium'.",
+                categoria: "Elementos Químicos"
+            },
+            {
+                pregunta: "¿Qué gas se produce cuando el vinagre reacciona con el bicarbonato de sodio?",
+                imagen: "https://www.thoughtco.com/thmb/8Z8Y2Q7WQ8JZ8Y2Q7WQ8JZ8Y2Q7WQ8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/carbon-dioxide-molecule-5c3b1f3c46e0fb0001f3b6e3.png",
+                opciones: ["Oxígeno (O₂)", "Dióxido de Carbono (CO₂)", "Hidrógeno (H₂)", "Metano (CH₄)"],
+                respuesta: 1,
+                explicacion: "La reacción entre el ácido acético del vinagre y el bicarbonato de sodio produce dióxido de carbono (CO₂), agua y acetato de sodio.",
+                categoria: "Reacciones Químicas"
+            },
+            {
+                pregunta: "¿Cuál es el metal líquido a temperatura ambiente?",
+                opciones: ["Sodio (Na)", "Mercurio (Hg)", "Plomo (Pb)", "Aluminio (Al)"],
+                respuesta: 1,
+                explicacion: "El Mercurio (Hg) es el único metal que se encuentra en estado líquido a temperatura ambiente (25°C).",
+                categoria: "Elementos Químicos"
+            },
+            {
+                pregunta: "¿Qué partícula subatómica tiene carga positiva?",
+                opciones: ["Electrón", "Protón", "Neutrón", "Fotón"],
+                respuesta: 1,
+                explicacion: "El protón es una partícula subatómica con carga positiva que se encuentra en el núcleo del átomo.",
+                categoria: "Estructura Atómica"
+            },
+            {
+                pregunta: "¿Qué gas noble se utiliza en globos aerostáticos?",
+                opciones: ["Neón (Ne)", "Argón (Ar)", "Helio (He)", "Kriptón (Kr)"],
+                respuesta: 2,
+                explicacion: "El Helio (He) es un gas noble inerte más ligero que el aire, por lo que se utiliza para inflar globos aerostáticos y dirigibles.",
+                categoria: "Gases Nobles"
+            }
+        ];
+
+        let score = 0;
+        let currentQuestion = 0;
+        const totalQuestions = 10;
+        let currentCorrectAnswer = 0;
+        let shuffledQuestions = [];
+
+        // Elementos del DOM
+        const questionElement = document.getElementById('question');
+        const questionImage = document.getElementById('questionImage');
+        const questionCategory = document.getElementById('questionCategory');
+        const optionsElement = document.getElementById('options');
+        const feedbackElement = document.getElementById('feedback');
+        const nextButton = document.getElementById('nextBtn');
+        const scoreElement = document.getElementById('score');
+        const currentElement = document.getElementById('current');
+        const progressElement = document.getElementById('progress');
+        const gameArea = document.getElementById('gameArea');
+        const resultContainer = document.getElementById('resultContainer');
+
+        // Inicializar el juego
+        function initGame() {
+            // Mezclar preguntas
+            shuffledQuestions = [...preguntas];
+            shuffleArray(shuffledQuestions);
+            
+            // Tomar solo las primeras 10 preguntas
+            shuffledQuestions = shuffledQuestions.slice(0, totalQuestions);
+            
+            // Mostrar la primera pregunta
+            showQuestion(0);
+            
+            // Configurar el botón de siguiente
+            nextButton.addEventListener('click', nextQuestion);
+        }
+
+        // Mostrar una pregunta
+        function showQuestion(index) {
+            if (index >= shuffledQuestions.length) {
+                endGame();
+                return;
+            }
+            
+            const question = shuffledQuestions[index];
+            
+            // Actualizar la interfaz
+            questionElement.textContent = question.pregunta;
+            questionCategory.textContent = question.categoria;
+            
+            // Mostrar imagen si está disponible
+            if (question.imagen) {
+                questionImage.src = question.imagen;
+                questionImage.style.display = 'block';
+            } else {
+                questionImage.style.display = 'none';
+            }
+            
+            // Generar opciones de respuesta
+            optionsElement.innerHTML = '';
+            question.opciones.forEach((opcion, i) => {
+                const button = document.createElement('div');
+                button.className = 'option';
+                button.innerHTML = opcion;
+                button.onclick = () => selectAnswer(i);
+                optionsElement.appendChild(button);
+            });
+            
+            // Guardar la respuesta correcta
+            currentCorrectAnswer = question.respuesta;
+            
+            // Actualizar barra de progreso
+            const progress = (index / totalQuestions) * 100;
+            progressElement.style.width = `${progress}%`;
+            
+            // Actualizar contador de preguntas
+            currentElement.textContent = index + 1;
+            
+            // Deshabilitar botón de siguiente hasta responder
+            nextButton.disabled = true;
+            
+            // Limpiar retroalimentación
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            feedbackElement.style.display = 'none';
+            
+            // Habilitar opciones
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'auto';
+                option.classList.remove('correct', 'incorrect');
+            });
+        }
+        
+        // Seleccionar una respuesta
+        function selectAnswer(selectedIndex) {
+            const options = document.querySelectorAll('.option');
+            const currentQuestionObj = shuffledQuestions[currentQuestion];
+            
+            // Deshabilitar todas las opciones
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            // Marcar respuesta correcta
+            options[currentCorrectAnswer].classList.add('correct');
+            
+            // Verificar si la respuesta es correcta
+            if (selectedIndex === currentCorrectAnswer) {
+                options[selectedIndex].classList.add('correct');
+                feedbackElement.textContent = '¡Correcto! ' + currentQuestionObj.explicacion;
+                feedbackElement.className = 'feedback correct';
+                score += 10;
+                scoreElement.textContent = score;
+                
+                // Efecto de confeti para respuestas correctas
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#9c27b0', '#7b1fa2', '#4a148c']
+                    });
+                }
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                feedbackElement.textContent = `Incorrecto. ${currentQuestionObj.explicacion}`;
+                feedbackElement.className = 'feedback incorrect';
+            }
+            
+            // Mostrar retroalimentación
+            feedbackElement.style.display = 'block';
+            
+            // Habilitar botón de siguiente
+            nextButton.disabled = false;
+        }
+        
+        // Siguiente pregunta
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < shuffledQuestions.length) {
+                showQuestion(currentQuestion);
+            } else {
+                endGame();
+            }
+        }
+        
+        // Finalizar el juego
+        function endGame() {
+            const result = Math.round((score / (totalQuestions * 10)) * 100);
+            
+            // Determinar mensaje según el puntaje
+            let message, emoji;
+            if (result >= 80) {
+                message = '¡Excelente! Eres un verdadero químico en ciernes.';
+                emoji = '🧪🎉';
+            } else if (result >= 60) {
+                message = '¡Buen trabajo! Sigue aprendiendo sobre química.';
+                emoji = '🔬👍';
+            } else {
+                message = '¡Sigue practicando! La química es fascinante.';
+                emoji = '⚗️💡';
+            }
+            
+            // Mostrar resultados
+            resultContainer.innerHTML = `
+                <div class="emoji">${emoji}</div>
+                <h2>¡Juego Terminado!</h2>
+                <div class="result-score">${score} / ${totalQuestions * 10}</div>
+                <div class="result-message">
+                    <p>${message}</p>
+                    <p>Has respondido correctamente el ${result}% de las preguntas.</p>
+                </div>
+                <button class="restart-btn" onclick="window.location.reload()">
+                    Jugar de Nuevo
+                </button>
+            `;
+            
+            // Ocultar área de juego y mostrar resultados
+            gameArea.style.display = 'none';
+            resultContainer.style.display = 'block';
+            
+            // Efecto de confeti al finalizar si el puntaje es alto
+            if (result >= 70 && typeof confetti === 'function') {
+                const end = Date.now() + 3000;
+                const colors = ['#9c27b0', '#7b1fa2', '#4a148c', '#e1bee7'];
+                
+                (function frame() {
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: colors
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: colors
+                    });
+                    
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }
+        }
+        
+        // Mezclar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Iniciar el juego cuando se cargue la página
+        window.onload = initGame;
+    </script>
+    <!-- Efectos de confeti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</body>
+</html>

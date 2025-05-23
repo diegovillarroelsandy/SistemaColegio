@@ -1,8 +1,10 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
+import os
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app, abort
 from flask_login import login_required, current_user
-from app.decorators import admin_required
-from app.models import db, Usuario, Rol, Docente, Estudiante, Grado
+from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
+from app.decorators import admin_required
+from app.models import db, Usuario, Rol, Docente, Estudiante, Grado, Ejercicio, Contenido, RespuestaEstudiante
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -424,3 +426,301 @@ def eliminar_grado(id):
     
     flash('Grado eliminado exitosamente', 'success')
     return redirect(url_for('admin.grados'))
+
+# ============================================
+# Rutas para la gestión de ejercicios
+# ============================================
+
+def allowed_file(filename):
+    """Verifica si la extensión del archivo es permitida"""
+    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'html'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@admin_bp.route('/ejercicios')
+@login_required
+@admin_required
+def ejercicios():
+    """Lista todos los ejercicios"""
+    ejercicios = Ejercicio.query.order_by(Ejercicio.fecha_creacion.desc()).all()
+    return render_template('admin/ejercicios/index.html', ejercicios=ejercicios)
+
+@admin_bp.route('/ejercicios/nuevo', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def nuevo_ejercicio():
+    """Crea un nuevo ejercicio"""
+    if request.method == 'POST':
+        try:
+            # Obtener datos del formulario
+            titulo = request.form.get('titulo')
+            enunciado = request.form.get('enunciado')
+            tipo_interaccion = request.form.get('tipo_interaccion')
+            grado_destinado_id = request.form.get('grado_destinado_id')
+            docente_id = request.form.get('docente_id')
+            ejercicio_existente = request.form.get('ejercicio_existente')
+            
+            # Validar datos requeridos
+            if not all([titulo, tipo_interaccion, grado_destinado_id, docente_id]):
+                flash('Los campos marcados con * son obligatorios', 'error')
+                return redirect(request.url)
+            
+            # Verificar si el grado existe
+            grado = Grado.query.get(grado_destinado_id)
+            if not grado:
+                flash('El grado seleccionado no existe', 'error')
+                return redirect(request.url)
+                
+            # Verificar si el docente existe
+            docente = Docente.query.get(docente_id)
+            if not docente:
+                flash('El docente seleccionado no existe', 'error')
+                return redirect(request.url)
+            
+            # Si se seleccionó un ejercicio existente
+            if ejercicio_existente and ejercicio_existente != 'nuevo':
+                # Asegurarse de que la ruta use barras normales
+                ejercicio_existente = ejercicio_existente.replace('\\', '/')
+                
+                # Verificar que el archivo exista
+                ejercicio_path = os.path.join(current_app.static_folder, 'ejercicios', ejercicio_existente)
+                if not os.path.exists(ejercicio_path):
+                    flash(f'El ejercicio seleccionado no existe: {ejercicio_path}', 'error')
+                    return redirect(request.url)
+                
+                # Usar el ejercicio existente como archivo adjunto
+                # Usar barras normales para las URLs
+                archivo_url = f'ejercicios/{ejercicio_existente}'
+                
+                # Si no se proporcionó un título, usar el nombre del archivo
+                if not titulo:
+                    titulo = os.path.splitext(os.path.basename(ejercicio_existente))[0].replace('_', ' ').title()
+            
+            # Si no se seleccionó un ejercicio existente, manejar la subida de archivo
+            elif 'archivo' in request.files and request.files['archivo'].filename != '':
+                archivo = request.files['archivo']
+                if archivo and allowed_file(archivo.filename):
+                    # Crear directorio si no existe
+                    upload_folder = os.path.join(current_app.static_folder, 'uploads', 'ejercicios')
+                    os.makedirs(upload_folder, exist_ok=True)
+                    
+                    # Generar nombre único para el archivo
+                    filename = secure_filename(archivo.filename)
+                    unique_filename = f"{os.urandom(8).hex()}_{filename}"
+                    filepath = os.path.join(upload_folder, unique_filename)
+                    
+                    # Guardar el archivo
+                    archivo.save(filepath)
+                    # Usar barras normales para las URLs
+                    archivo_url = f'uploads/ejercicios/{unique_filename}'.replace('\\', '/')
+                else:
+                    flash('Tipo de archivo no permitido', 'error')
+                    return redirect(request.url)
+            else:
+                archivo_url = None
+            
+            # Crear el ejercicio
+            ejercicio = Ejercicio(
+                titulo=titulo,
+                enunciado=enunciado,
+                tipo_interaccion=tipo_interaccion,
+                grado_destinado_id=grado_destinado_id,
+                docente_id=docente_id,
+                archivo_url=archivo_url
+            )
+            
+            db.session.add(ejercicio)
+            db.session.commit()
+            
+            flash('Ejercicio creado exitosamente', 'success')
+            return redirect(url_for('admin.ver_ejercicio', id=ejercicio.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error al crear ejercicio: {str(e)}")
+            flash('Ocurrió un error al crear el ejercicio', 'error')
+            return redirect(request.url)
+    
+    # Si es GET, mostrar el formulario
+    grados = Grado.query.order_by(Grado.nombre).all()
+    docentes = Docente.query.join(Usuario).order_by(Usuario.nombre_completo).all()
+    
+    return render_template('admin/ejercicios/nuevo.html', grados=grados, docentes=docentes)
+
+@admin_bp.route('/ejercicios/<int:id>')
+@login_required
+@admin_required
+def ver_ejercicio(id):
+    """Muestra los detalles de un ejercicio"""
+    ejercicio = Ejercicio.query.get_or_404(id)
+    return render_template('admin/ejercicios/ver.html', ejercicio=ejercicio)
+
+@admin_bp.route('/ejercicios/<int:id>/editar', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def editar_ejercicio(id):
+    """Edita un ejercicio existente"""
+    ejercicio = Ejercicio.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        try:
+            # Obtener datos del formulario
+            ejercicio.titulo = request.form.get('titulo')
+            ejercicio.enunciado = request.form.get('enunciado')
+            ejercicio.tipo_interaccion = request.form.get('tipo_interaccion')
+            ejercicio.grado_destinado_id = request.form.get('grado_destinado_id')
+            ejercicio.docente_id = request.form.get('docente_id')
+            
+            # Validar datos requeridos
+            if not all([ejercicio.titulo, ejercicio.enunciado, ejercicio.tipo_interaccion, 
+                       ejercicio.grado_destinado_id, ejercicio.docente_id]):
+                flash('Todos los campos son obligatorios', 'error')
+                return redirect(request.url)
+            
+            # Verificar si el grado existe
+            grado = Grado.query.get(ejercicio.grado_destinado_id)
+            if not grado:
+                flash('El grado seleccionado no existe', 'error')
+                return redirect(request.url)
+                
+            # Verificar si el docente existe
+            docente = Docente.query.get(ejercicio.docente_id)
+            if not docente:
+                flash('El docente seleccionado no existe', 'error')
+                return redirect(request.url)
+            
+            # Procesar archivo adjunto si se proporciona uno nuevo
+            if 'archivo' in request.files:
+                archivo = request.files['archivo']
+                if archivo.filename != '':
+                    if archivo and allowed_file(archivo.filename):
+                        # Eliminar archivo anterior si existe
+                        if ejercicio.archivo_url:
+                            try:
+                                filepath = os.path.join(current_app.static_folder, ejercicio.archivo_url)
+                                if os.path.exists(filepath):
+                                    os.remove(filepath)
+                            except Exception as e:
+                                current_app.logger.error(f"Error al eliminar archivo anterior: {str(e)}")
+                        
+                        # Crear directorio si no existe
+                        upload_folder = os.path.join(current_app.static_folder, 'uploads', 'ejercicios')
+                        os.makedirs(upload_folder, exist_ok=True)
+                        
+                        # Generar nombre único para el archivo
+                        filename = secure_filename(archivo.filename)
+                        unique_filename = f"{os.urandom(8).hex()}_{filename}"
+                        filepath = os.path.join(upload_folder, unique_filename)
+                        
+                        # Guardar el archivo
+                        archivo.save(filepath)
+                        # Usar barras normales para las URLs
+                        ejercicio.archivo_url = f'uploads/ejercicios/{unique_filename}'.replace('\\', '/')
+                    else:
+                        flash('Tipo de archivo no permitido', 'error')
+                        return redirect(request.url)
+            
+            db.session.commit()
+            flash('Ejercicio actualizado exitosamente', 'success')
+            return redirect(url_for('admin.ver_ejercicio', id=ejercicio.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error al actualizar ejercicio: {str(e)}")
+            flash('Ocurrió un error al actualizar el ejercicio', 'error')
+            return redirect(request.url)
+    
+    # Si es GET, mostrar el formulario con los datos actuales
+    grados = Grado.query.order_by(Grado.nombre).all()
+    docentes = Docente.query.join(Usuario).order_by(Usuario.nombre_completo).all()
+    
+    return render_template('admin/ejercicios/editar.html', 
+                         ejercicio=ejercicio, 
+                         grados=grados, 
+                         docentes=docentes)
+
+@admin_bp.route('/ejercicios/<int:id>/eliminar', methods=['POST'])
+@login_required
+@admin_required
+def eliminar_ejercicio(id):
+    """Elimina un ejercicio"""
+    ejercicio = Ejercicio.query.get_or_404(id)
+    
+    try:
+        # Eliminar archivo adjunto si existe
+        if ejercicio.archivo_url:
+            try:
+                filepath = os.path.join(current_app.static_folder, ejercicio.archivo_url)
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+            except Exception as e:
+                current_app.logger.error(f"Error al eliminar archivo: {str(e)}")
+        
+        # Eliminar el ejercicio
+        db.session.delete(ejercicio)
+        db.session.commit()
+        
+        flash('Ejercicio eliminado exitosamente', 'success')
+        return redirect(url_for('admin.ejercicios'))
+    
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error al eliminar ejercicio: {str(e)}")
+        flash('Ocurrió un error al eliminar el ejercicio', 'error')
+        return redirect(url_for('admin.ejercicios'))
+
+@admin_bp.route('/ejercicios/<int:id>/eliminar-archivo', methods=['POST'])
+@login_required
+@admin_required
+def eliminar_archivo_ejercicio(id):
+    """Elimina solo el archivo adjunto de un ejercicio"""
+    ejercicio = Ejercicio.query.get_or_404(id)
+    
+    try:
+        if ejercicio.archivo_url:
+            try:
+                filepath = os.path.join(current_app.static_folder, ejercicio.archivo_url)
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                ejercicio.archivo_url = None
+                db.session.commit()
+                flash('Archivo eliminado exitosamente', 'success')
+            except Exception as e:
+                db.session.rollback()
+                current_app.logger.error(f"Error al eliminar archivo: {str(e)}")
+                flash('Ocurrió un error al eliminar el archivo', 'error')
+        else:
+            flash('El ejercicio no tiene archivo adjunto', 'warning')
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error al eliminar archivo: {str(e)}")
+        flash('Ocurrió un error al procesar la solicitud', 'error')
+    
+    return redirect(url_for('admin.editar_ejercicio', id=ejercicio.id))
+
+@admin_bp.route('/ejercicios/<int:ejercicio_id>/respuestas/<int:respuesta_id>/calificar', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def calificar_respuesta(ejercicio_id, respuesta_id):
+    """Califica una respuesta de un estudiante a un ejercicio"""
+    respuesta = RespuestaEstudiante.query.get_or_404(respuesta_id)
+    
+    if respuesta.ejercicio_id != ejercicio_id:
+        abort(404)
+    
+    if request.method == 'POST':
+        try:
+            respuesta.correcta = request.form.get('correcta') == 'true'
+            respuesta.retroalimentacion = request.form.get('retroalimentacion', '')
+            
+            db.session.commit()
+            flash('Respuesta calificada exitosamente', 'success')
+            return redirect(url_for('admin.ver_ejercicio', id=ejercicio_id))
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error al calificar respuesta: {str(e)}")
+            flash('Ocurrió un error al calificar la respuesta', 'error')
+    
+    # Si es GET, mostrar el formulario de calificación
+    return render_template('admin/ejercicios/calificar_respuesta.html', 
+                         respuesta=respuesta, 
+                         ejercicio=respuesta.ejercicio)

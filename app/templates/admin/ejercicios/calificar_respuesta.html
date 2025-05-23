@@ -1,0 +1,81 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Calificar Respuesta</h5>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.ver_ejercicio', id=ejercicio.id) }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6>Ejercicio:</h6>
+                        <p>{{ ejercicio.titulo or 'Sin título' }}</p>
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                {{ ejercicio.enunciado|safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6>Respuesta del Estudiante:</h6>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ respuesta.respuesta or 'El estudiante no ha proporcionado una respuesta.' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('admin.calificar_respuesta', ejercicio_id=ejercicio.id, respuesta_id=respuesta.id) }}">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6>Calificación:</h6>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="correcta" id="correcta_si" value="true" 
+                                       {% if respuesta.correcta == true %}checked{% endif %}>
+                                <label class="form-check-label text-success" for="correcta_si">
+                                    <i class="fas fa-check-circle"></i> Correcta
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="correcta" id="correcta_no" value="false"
+                                       {% if respuesta.correcta == false %}checked{% endif %}>
+                                <label class="form-check-label text-danger" for="correcta_no">
+                                    <i class="fas fa-times-circle"></i> Incorrecta
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label for="retroalimentacion" class="form-label">Retroalimentación:</label>
+                            <textarea class="form-control" id="retroalimentacion" name="retroalimentacion" 
+                                     rows="4" placeholder="Proporciona retroalimentación al estudiante...">{{ respuesta.retroalimentacion or '' }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('admin.ver_ejercicio', id=ejercicio.id) }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Calificación
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

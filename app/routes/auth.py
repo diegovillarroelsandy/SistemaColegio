@@ -4,7 +4,7 @@ from ..models import db, Usuario, Rol
 from werkzeug.security import generate_password_hash
 from ..forms.auth import LoginForm
 
-auth_bp = Blueprint('auth', _name_)
+auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():

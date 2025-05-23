@@ -389,6 +389,15 @@
               <span>Grados</span>
             </a>
           </li>
+          <li>
+            <a
+              href="{{ url_for('admin.ejercicios') }}"
+              class="sidebar-link {% if request.endpoint == 'admin.ejercicios' or request.endpoint.startswith('admin.ver_ejercicio') or request.endpoint.startswith('admin.nuevo_ejercicio') or request.endpoint.startswith('admin.editar_ejercicio') %}active{% endif %}"
+            >
+              <i class="fas fa-tasks"></i>
+              <span>Ejercicios</span>
+            </a>
+          </li>
         </ul>
       </nav>
 

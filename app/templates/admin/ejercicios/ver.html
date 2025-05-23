@@ -1,0 +1,230 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<style>
+    .embed-responsive {
+        position: relative;
+        display: block;
+        width: 100%;
+        padding: 0;
+        overflow: hidden;
+        border-radius: 0.25rem;
+    }
+    
+    .embed-responsive::before {
+        display: block;
+        content: "";
+        padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    
+    .embed-responsive .embed-responsive-item,
+    .embed-responsive iframe,
+    .embed-responsive embed,
+    .embed-responsive object,
+    .embed-responsive video {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+    
+    .embed-responsive-16by9::before {
+        padding-top: 56.25%;
+    }
+</style>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Detalles del Ejercicio</h5>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.ejercicios') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                    <a href="{{ url_for('admin.editar_ejercicio', id=ejercicio.id) }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Información Básica</h4>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>ID:</th>
+                                <td>{{ ejercicio.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Título:</th>
+                                <td>{{ ejercicio.titulo or 'Sin título' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Grado Destinado:</th>
+                                <td>
+                                    {% if ejercicio.grado_destinado %}
+                                        {{ ejercicio.grado_destinado.nombre }}
+                                    {% else %}
+                                        Sin asignar
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Docente:</th>
+                                <td>
+                                    {% if ejercicio.docente %}
+                                        {{ ejercicio.docente.usuario.nombre_completo }}
+                                        {% if ejercicio.docente.especialidad %}
+                                            <br><small class="text-muted">{{ ejercicio.docente.especialidad }}</small>
+                                        {% endif %}
+                                    {% else %}
+                                        Sin docente asignado
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Tipo de Interacción:</th>
+                                <td>
+                                    {% if ejercicio.tipo_interaccion %}
+                                        {% if ejercicio.tipo_interaccion == 'opcion_multiple' %}
+                                            Opción Múltiple
+                                        {% elif ejercicio.tipo_interaccion == 'verdadero_falso' %}
+                                            Verdadero/Falso
+                                        {% elif ejercicio.tipo_interaccion == 'respuesta_corta' %}
+                                            Respuesta Corta
+                                        {% elif ejercicio.tipo_interaccion == 'desarrollo' %}
+                                            Desarrollo
+                                        {% else %}
+                                            {{ ejercicio.tipo_interaccion }}
+                                        {% endif %}
+                                    {% else %}
+                                        No especificado
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Fecha de Creación:</th>
+                                <td>{{ ejercicio.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Enunciado</h4>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ ejercicio.enunciado|safe }}
+                            </div>
+                        </div>
+                        
+                        {% if ejercicio.archivo_url %}
+                        <div class="mt-4">
+                            <h4>Archivo Adjunto</h4>
+                            <div class="card">
+                                <div class="card-body">
+                                    {% set archivo_url = ejercicio.archivo_url.replace('\\', '/') %}
+                                    {% if ejercicio.archivo_url.endswith('.html') %}
+                                        <div class="mb-3">
+                                            <a href="{{ url_for('static', filename=archivo_url) }}" target="_blank" class="btn btn-outline-primary">
+                                                <i class="fas fa-external-link-alt"></i> Abrir en nueva pestaña
+                                            </a>
+                                        </div>
+                                        <div class="embed-responsive embed-responsive-16by9">
+                                            <iframe src="{{ url_for('static', filename=archivo_url) }}" class="embed-responsive-item" style="border: 1px solid #dee2e6; border-radius: 0.25rem;"></iframe>
+                                        </div>
+                                    {% else %}
+                                        <a href="{{ url_for('static', filename=archivo_url) }}" target="_blank" class="btn btn-outline-primary">
+                                            <i class="fas fa-download"></i> Descargar Archivo
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h4>Respuestas de Estudiantes</h4>
+                        {% if ejercicio.respuestas %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Estudiante</th>
+                                            <th>Fecha de Respuesta</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for respuesta in ejercicio.respuestas %}
+                                        <tr>
+                                            <td>{{ respuesta.estudiante.usuario.nombre_completo }}</td>
+                                            <td>{{ respuesta.fecha_respuesta.strftime('%d/%m/%Y %H:%M') }}</td>
+                                            <td>
+                                                {% if respuesta.correcta is none %}
+                                                    <span class="badge bg-warning">Pendiente</span>
+                                                {% elif respuesta.correcta %}
+                                                    <span class="badge bg-success">Correcta</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Incorrecta</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#verRespuesta{{ respuesta.id }}">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </button>
+                                                
+                                                <!-- Modal para ver la respuesta -->
+                                                <div class="modal fade" id="verRespuesta{{ respuesta.id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Respuesta de {{ respuesta.estudiante.usuario.nombre_completo }}</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <h6>Respuesta:</h6>
+                                                                <p>{{ respuesta.respuesta or 'Sin respuesta' }}</p>
+                                                                
+                                                                {% if respuesta.retroalimentacion %}
+                                                                <hr>
+                                                                <h6>Retroalimentación:</h6>
+                                                                <p>{{ respuesta.retroalimentacion }}</p>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                                <a href="{{ url_for('admin.calificar_respuesta', id=respuesta.id) }}" class="btn btn-primary">
+                                                                    <i class="fas fa-check"></i> Calificar
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">No hay respuestas registradas para este ejercicio</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                No hay respuestas registradas para este ejercicio.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
