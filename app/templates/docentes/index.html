@@ -1,85 +1,92 @@
-<<<<<<< HEAD
-{% extends "base.html" %}
-=======
-{% extends "docentes/base.html" %}
-
-{% block title %}Panel de Docente - Sistema Colegio{% endblock %}
-
-{% block role %}Docente{% endblock %}
-
-{% block sidebar_content %}
+{% extends "docentes/base.html" %} {% block title %}Panel de Docente - Sistema
+Colegio{% endblock %} {% block role %}Docente{% endblock %} {% block
+sidebar_content %}
 <a href="{{ url_for('docentes.index') }}" class="sidebar-link active">
-    <i class="fas fa-home"></i>
-    <span>Inicio</span>
+  <i class="fas fa-home"></i>
+  <span>Inicio</span>
 </a>
 <a href="{{ url_for('docentes.estudiantes') }}" class="sidebar-link">
-    <i class="fas fa-users"></i>
-    <span>Estudiantes</span>
+  <i class="fas fa-users"></i>
+  <span>Estudiantes</span>
 </a>
 <a href="{{ url_for('docentes.contenido') }}" class="sidebar-link">
-    <i class="fas fa-book"></i>
-    <span>Contenido</span>
+  <i class="fas fa-book"></i>
+  <span>Contenido</span>
 </a>
 <a href="{{ url_for('docentes.ejercicios') }}" class="sidebar-link">
-    <i class="fas fa-tasks"></i>
-    <span>Ejercicios</span>
+  <i class="fas fa-tasks"></i>
+  <span>Ejercicios</span>
 </a>
 <a href="{{ url_for('docentes.calificaciones') }}" class="sidebar-link">
-    <i class="fas fa-chart-bar"></i>
-    <span>Calificaciones</span>
+  <i class="fas fa-chart-bar"></i>
+  <span>Calificaciones</span>
 </a>
-{% endblock %}
->>>>>>> cf6d9494fb370b90ae4ff850055e87bfa28de818
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="container mt-5">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Bienvenido</h5>
-                    <p class="card-text">{{ current_user.nombre_completo }}</p>
-                    <p class="card-text">Especialidad: {{ current_user.docente.especialidad }}</p>
-                    <p class="card-text">Grado: {{ current_user.docente.grado.nombre if current_user.docente.grado else 'No asignado' }}</p>
-                </div>
-            </div>
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Bienvenido</h5>
+          <p class="card-text">{{ current_user.nombre_completo }}</p>
+          <p class="card-text">
+            Especialidad: {{ current_user.docente.especialidad }}
+          </p>
+          <p class="card-text">
+            Grado: {{ current_user.docente.grado.nombre if
+            current_user.docente.grado else 'No asignado' }}
+          </p>
         </div>
-        <div class="col-md-9">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Panel de Docente</h5>
-                    <div class="row">
-                        <div class="col-md-4 mb-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title">Estudiantes</h5>
-                                    <p class="card-text">Ver y gestionar estudiantes</p>
-                                    <a href="{{ url_for('docentes.estudiantes') }}" class="btn btn-primary">Ver Estudiantes</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title">Contenido</h5>
-                                    <p class="card-text">Crear y gestionar contenido</p>
-                                    <a href="{{ url_for('docentes.contenido') }}" class="btn btn-primary">Gestionar Contenido</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title">Ejercicios</h5>
-                                    <p class="card-text">Crear y gestionar ejercicios</p>
-                                    <a href="{{ url_for('docentes.ejercicios') }}" class="btn btn-primary">Gestionar Ejercicios</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+    <div class="col-md-9">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Panel de Docente</h5>
+          <div class="row">
+            <div class="col-md-4 mb-4">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h5 class="card-title">Estudiantes</h5>
+                  <p class="card-text">Ver y gestionar estudiantes</p>
+                  <a
+                    href="{{ url_for('docentes.estudiantes') }}"
+                    class="btn btn-primary"
+                    >Ver Estudiantes</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 mb-4">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h5 class="card-title">Contenido</h5>
+                  <p class="card-text">Crear y gestionar contenido</p>
+                  <a
+                    href="{{ url_for('docentes.contenido') }}"
+                    class="btn btn-primary"
+                    >Gestionar Contenido</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 mb-4">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h5 class="card-title">Ejercicios</h5>
+                  <p class="card-text">Crear y gestionar ejercicios</p>
+                  <a
+                    href="{{ url_for('docentes.ejercicios') }}"
+                    class="btn btn-primary"
+                    >Gestionar Ejercicios</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

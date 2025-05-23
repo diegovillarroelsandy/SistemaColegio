@@ -9,12 +9,12 @@ estudiantes_bp = Blueprint('estudiantes', __name__, url_prefix='/estudiantes')
 @login_required
 @student_required
 def index():
-    return render_template('estudiante/index.html')
+    return render_template('estudiantes/index.html')
 
 @estudiantes_bp.route('/notas')
 @login_required
 @student_required
 def notas():
     
-    return render_template('estudiante/notas/index.html')
+    return render_template('estudiantes/notas/index.html')
 
