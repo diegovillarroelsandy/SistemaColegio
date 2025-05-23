@@ -265,7 +265,14 @@
                     <small>{{ current_user.nombre_completo }}</small>
                 </div>
             </div>
-            {% block sidebar_content %}{% endblock %}
+            {% block sidebar_content %}
+            <a href="{{ url_for('docentes.index') }}" class="sidebar-link {% if request.endpoint == 'docentes.index' %}active{% endif %}">
+                <i class="fas fa-home"></i> Inicio
+            </a>
+            <a href="{{ url_for('docentes.notas') }}" class="sidebar-link {% if request.endpoint == 'docentes.notas' %}active{% endif %}">
+                <i class="fas fa-graduation-cap"></i> Notas
+            </a>
+            {% endblock %}
         </nav>
         {% endblock %}
 
@@ -350,4 +357,4 @@
     </script>
     {% block extra_js %}{% endblock %}
 </body>
-</html> 
+</html>
