@@ -4,7 +4,7 @@ from ..models import db, Usuario, Rol
 from werkzeug.security import generate_password_hash
 from ..forms.auth import LoginForm
 
-auth_bp = Blueprint('auth', _name_)
+auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -21,7 +21,7 @@ def login():
             elif usuario.has_role('docente'):
                 return redirect(url_for('docentes.index'))
             elif usuario.has_role('estudiante'):
-                return redirect(url_for('main.index'))
+                return redirect(url_for('estudiantes.index'))
             else:
                 return redirect(url_for('main.index'))
         else:
