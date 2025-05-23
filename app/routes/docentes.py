@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from app.decorators import teacher_required
 from app.models import db, Usuario, Rol, Docente, Estudiante, Grado, Contenido, Ejercicio, RespuestaEstudiante
 from werkzeug.security import generate_password_hash
-
+from app.models import Nota  
 docentes_bp = Blueprint('docentes', __name__, url_prefix='/docentes')
 
 @docentes_bp.route('/')
@@ -100,4 +100,68 @@ def ver_estudiante(id):
         return redirect(url_for('docentes.estudiantes'))
     return render_template('docentes/ver.html', estudiante=estudiante)
 
+@docentes_bp.route('/notas/agregar', methods=['GET', 'POST'])
+@login_required
+def agregar_nota():
+    estudiantes = Estudiante.query.all()  # O ajusta según tu modelo
+    if request.method == 'POST':
+        estudiante_id = request.form['estudiante_id']
+        asignatura = request.form['asignatura']
+        valor = request.form['valor']
+        
+        nueva_nota = Nota(
+            estudiante_id=estudiante_id,
+            asignatura=asignatura,
+            valor=valor,
+            docente_id=current_user.id
+        )
+        db.session.add(nueva_nota)
+        db.session.commit()
+        flash('Nota agregada correctamente', 'success')
+        return redirect(url_for('docentes.notas'))
 
+    return render_template('docentes/agregar_nota.html', estudiantes=estudiantes)
+
+@docentes_bp.route('/notas')
+@login_required
+@teacher_required
+def notas():
+    docente_id = current_user.id
+    notas = Nota.query.filter_by(docente_id=docente_id).all()
+    return render_template('docentes/notas.html', notas=notas)
+
+@docentes_bp.route('/agregar-nota', methods=['GET', 'POST'])
+@login_required
+def agregar_nota_simple():
+    estudiantes = Estudiante.query.all()
+    return render_template('docentes/agregar_nota.html', estudiantes=estudiantes)
+
+@docentes_bp.route('/notas/editar/<int:nota_id>', methods=['GET', 'POST'])
+@login_required
+@teacher_required
+def editar_nota(nota_id):
+    nota = Nota.query.get_or_404(nota_id)
+
+    if request.method == 'POST':
+        nota.asignatura = request.form['asignatura']
+        nota.valor = float(request.form['valor'])
+        db.session.commit()
+        flash('Nota actualizada correctamente', 'success')
+        return redirect(url_for('docentes.notas'))
+
+    return render_template('docentes/editar_nota.html', nota=nota)
+
+@docentes_bp.route('/notas/eliminar/<int:nota_id>', methods=['POST'])
+@login_required
+@teacher_required
+def eliminar_nota(nota_id):
+    nota = Nota.query.get_or_404(nota_id)
+    
+    if nota.docente_id != current_user.id:
+        flash('No tienes permiso para eliminar esta nota.', 'danger')
+        return redirect(url_for('docentes.notas'))
+
+    db.session.delete(nota)
+    db.session.commit()
+    flash('Nota eliminada exitosamente.', 'success')
+    return redirect(url_for('docentes.notas'))
