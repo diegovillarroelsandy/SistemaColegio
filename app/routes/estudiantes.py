@@ -15,6 +15,10 @@ def index():
 @login_required
 @student_required
 def notas():
-    
     return render_template('estudiantes/notas/index.html')
 
+@estudiantes_bp.route('/vista_juegos')
+@login_required
+@student_required
+def vista_juegos():
+    return render_template('estudiantes/vista_juegos/index.html')

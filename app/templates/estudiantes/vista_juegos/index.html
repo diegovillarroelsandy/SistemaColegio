@@ -1,0 +1,151 @@
+{% extends "estudiantes/base.html" %}
+{% block role %} Estudiante {% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estudiantes/vista_juegos/styles.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+        <header>
+            <div class="logo">EduJuegos</div>
+            <div class="header-controls">
+                <button class="back-button" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i> Atrás
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <h1>Mis Juegos Educativos</h1>
+            <div class="games-grid">
+                <!-- Juego 1 -->
+                <div class="game-card">
+                    <div class="game-image-container">
+                        <img src="https://picsum.photos/seed/game1/300/150.jpg" alt="Matemáticas Divertidas" class="game-image">
+                        <div class="game-overlay">
+                            <div class="game-stats">
+                                <span class="game-level"><i class="fas fa-star"></i> Básico</span>
+                                <span class="game-category"><i class="fas fa-book"></i> Matemáticas</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-info">
+                        <h3 class="game-title"><i class="fas fa-gamepad"></i> Matemáticas Divertidas</h3>
+                        <p class="game-description">Practica operaciones matemáticas básicas de forma interactiva y divertida.</p>
+                        <div class="game-meta">
+                            <span class="game-difficulty"><i class="fas fa-clock"></i> 15 min</span>
+                            <span class="game-players"><i class="fas fa-users"></i> 1 jugador</span>
+                        </div>
+                        <button class="play-button" onclick="playGame('Matemáticas Divertidas')">
+                            <i class="fas fa-play"></i> Jugar Ahora
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Juego 2 -->
+                <div class="game-card">
+                    <div class="game-image-container">
+                        <img src="https://picsum.photos/seed/game2/300/150.jpg" alt="Vocabulario Expansivo" class="game-image">
+                        <div class="game-overlay">
+                            <div class="game-stats">
+                                <span class="game-level"><i class="fas fa-star"></i> Intermedio</span>
+                                <span class="game-category"><i class="fas fa-book"></i> Lenguaje</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-info">
+                        <h3 class="game-title">Vocabulario Expansivo</h3>
+                        <p class="game-description">Aprende nuevo vocabulario mientras juegas a este emocionante juego de palabras.</p>
+                        <button class="play-button" onclick="playGame('Vocabulario Expansivo')">Jugar</button>
+                    </div>
+                </div>
+
+                <!-- Juego 3 -->
+                <div class="game-card">
+                    <img src="https://picsum.photos/seed/game3/300/150.jpg" alt="Ciencias Interactivas" class="game-image">
+                    <div class="game-info">
+                        <h3 class="game-title">Ciencias Interactivas</h3>
+                        <p class="game-description">Explora el mundo de la ciencia a través de experimentos virtuales y desafíos.</p>
+                        <button class="play-button" onclick="playGame('Ciencias Interactivas')">Jugar</button>
+                    </div>
+                </div>
+
+                <!-- Juego 4 -->
+                <div class="game-card">
+                    <img src="https://picsum.photos/seed/game4/300/150.jpg" alt="Geografía Mundial" class="game-image">
+                    <div class="game-info">
+                        <h3 class="game-title">Geografía Mundial</h3>
+                        <p class="game-description">Descubre países, capitales y culturas de todo el mundo en este juego de geografía.</p>
+                        <button class="play-button" onclick="playGame('Geografía Mundial')">Jugar</button>
+                    </div>
+                </div>
+
+                <!-- Juego 5 -->
+                <div class="game-card">
+                    <img src="https://picsum.photos/seed/game5/300/150.jpg" alt="Lógica y Puzzles" class="game-image">
+                    <div class="game-info">
+                        <h3 class="game-title">Lógica y Puzzles</h3>
+                        <p class="game-description">Desafía tu mente con estos puzzles diseñados para mejorar tu pensamiento lógico.</p>
+                        <button class="play-button" onclick="playGame('Lógica y Puzzles')">Jugar</button>
+                    </div>
+                </div>
+
+                <!-- Juego 6 -->
+                <div class="game-card">
+                    <img src="https://picsum.photos/seed/game6/300/150.jpg" alt="Historia Viva" class="game-image">
+                    <div class="game-info">
+                        <h3 class="game-title">Historia Viva</h3>
+                        <p class="game-description">Viaja a través del tiempo y aprende sobre las épocas más importantes de la historia.</p>
+                        <button class="play-button" onclick="playGame('Historia Viva')">Jugar</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Función para volver a la página anterior
+        function goBack() {
+            window.history.back();
+        }
+
+        // Función para mostrar notificación al jugar
+        function playGame(gameName) {
+            const notification = document.getElementById('notification');
+            notification.textContent = `Iniciando ${gameName}...`;
+            notification.style.display = 'block';
+
+            // Ocultar notificación después de 3 segundos
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Función para alternar entre temas claro y oscuro
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            
+            // Guardar la preferencia del usuario en localStorage
+            if (document.body.classList.contains('dark-theme')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Al cargar la página, verificar si el usuario tenía una preferencia de tema
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
+        });
+    </script>
+</div>
+{% endblock %}
