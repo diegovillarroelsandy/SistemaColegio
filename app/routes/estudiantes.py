@@ -22,21 +22,19 @@ def notas():
 @login_required
 @student_required
 def vista_juegos():
-    # Obtener el grado del estudiante
     try:
+        # Obtener el grado del estudiante
         grado_id = current_user.estudiante.grado_id
         
-        # Obtener los docentes asignados a este grado
-        docentes = Docente.query.filter_by(grado_id=grado_id).all()
+        # Obtener los ejercicios destinados a este grado
+        ejercicios = Ejercicio.query.filter_by(
+            grado_destinado_id=grado_id
+        ).all()
         
-        # Obtener las materias únicas de los docentes
-        materias = set()
-        for docente in docentes:
-            if docente.especialidad:
-                materias.add(docente.especialidad)
-        
-        return render_template('estudiantes/vista_juegos/index.html', materias=materias)
+        return render_template('estudiantes/vista_juegos/index.html', 
+                            ejercicios=ejercicios)
     except Exception as e:
-        flash('Error al cargar las materias: ' + str(e), 'error')
-        return render_template('estudiantes/vista_juegos/index.html', materias=['Error al cargar materias'])
+        flash('Error al cargar los ejercicios: ' + str(e), 'error')
+        return render_template('estudiantes/vista_juegos/index.html', 
+                            ejercicios=[])
 
