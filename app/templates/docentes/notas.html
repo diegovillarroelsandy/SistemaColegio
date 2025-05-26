@@ -36,9 +36,8 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Notas Asignadas</h2>
     <a href="{{ url_for('docentes.agregar_nota') }}" class="btn btn-primary">
-  <i class="fas fa-plus"></i> Agregar nueva nota
-</a>
-
+      <i class="fas fa-plus"></i> Agregar nueva nota
+    </a>
   </div>
 
   <div class="table-responsive shadow rounded">
@@ -46,7 +45,7 @@
       <thead class="table-dark text-center">
         <tr>
           <th>Estudiante</th>
-          <th>Asignatura</th>
+          <th>Grado</th>
           <th>Nota</th>
           <th>Acciones</th>
         </tr>
@@ -55,7 +54,7 @@
         {% for nota in notas %}
         <tr>
           <td>{{ nota.estudiante.usuario.correo }}</td>
-          <td>{{ nota.ejercicio.titulo }}</td>
+          <td>{{ nota.ejercicio.grado_destinado.nombre }}</td>
           <td class="text-center">{{ nota.valor }}</td>
           <td class="text-center">
             <a href="{{ url_for('docentes.editar_nota', nota_id=nota.id) }}" class="btn btn-sm btn-warning">
