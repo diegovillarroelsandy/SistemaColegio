@@ -132,3 +132,4 @@ class RespuestaEstudiante(db.Model):
     correcta = db.Column(db.Boolean)
     retroalimentacion = db.Column(db.Text)
     fecha_respuesta = db.Column(db.DateTime, default=datetime.utcnow)
+    valor = db.Column(db.Float, nullable=True) 

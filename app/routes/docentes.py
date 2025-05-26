@@ -20,6 +20,19 @@ def estudiantes():
     estudiantes = Estudiante.query.filter_by(grado_id=grado_id).all()
     return render_template('docentes/estudiantes.html', estudiantes=estudiantes)
 
+@docentes_bp.route('/estudiantes/<int:id>')
+@login_required
+@teacher_required
+def ver_estudiante(id):
+    estudiante = Estudiante.query.get_or_404(id)
+    
+    # Seguridad: verifica que el docente solo vea sus propios estudiantes
+    if estudiante.grado_id != current_user.docente.grado_id:
+        flash("No tienes permiso para ver este estudiante.", "danger")
+        return redirect(url_for('docentes.estudiantes'))
+
+    return render_template('docentes/ver_estudiante.html', estudiante=estudiante)
+
 @docentes_bp.route('/contenido', methods=['GET', 'POST'])
 @login_required
 @teacher_required
@@ -88,16 +101,85 @@ def calificaciones():
     estudiantes = Estudiante.query.filter_by(grado_id=grado_id).all()
     return render_template('docentes/calificaciones.html', estudiantes=estudiantes)
 
-
-@docentes_bp.route('/estudiante/<int:id>')
+@docentes_bp.route('/notas')
 @login_required
 @teacher_required
-def ver_estudiante(id):
-    estudiante = Estudiante.query.get_or_404(id)
-    # Verificar que el estudiante pertenece al grado del docente
-    if estudiante.grado_id != current_user.docente.grado_id:
-        flash('No tienes permiso para ver este estudiante', 'error')
-        return redirect(url_for('docentes.estudiantes'))
-    return render_template('docentes/ver.html', estudiante=estudiante)
+def notas():
+    grado_id = current_user.docente.grado_id
+    notas = (
+        RespuestaEstudiante.query
+        .join(Estudiante)
+        .join(Ejercicio)
+        .filter(Estudiante.grado_id == grado_id, RespuestaEstudiante.valor != None)
+        .all()
+    )
+    return render_template('docentes/notas.html', notas=notas)
 
+@docentes_bp.route('/notas/agregar', methods=['GET', 'POST'])
+@login_required
+@teacher_required
+def agregar_nota():
+    grado_id = current_user.docente.grado_id
+    estudiantes = Estudiante.query.filter_by(grado_id=grado_id).all()
+    ejercicios = Ejercicio.query.filter_by(grado_destinado_id=grado_id, docente_id=current_user.docente.id).all()
 
+    if request.method == 'POST':
+        estudiante_id = request.form.get('estudiante_id')
+        ejercicio_id = request.form.get('ejercicio_id')
+        valor = request.form.get('valor')
+
+        if not estudiante_id or not ejercicio_id or not valor:
+            flash('Todos los campos son obligatorios.', 'warning')
+        else:
+            try:
+                valor = float(valor)
+                nueva_respuesta = RespuestaEstudiante(
+                    estudiante_id=estudiante_id,
+                    ejercicio_id=ejercicio_id,
+                    valor=valor
+                )
+                db.session.add(nueva_respuesta)
+                db.session.commit()
+                flash('Nota agregada exitosamente.', 'success')
+                return redirect(url_for('docentes.notas'))
+            except ValueError:
+                flash('La nota debe ser un número válido.', 'danger')
+
+    return render_template('docentes/agregar_nota.html', estudiantes=estudiantes, ejercicios=ejercicios)
+
+@docentes_bp.route('/notas/editar/<int:respuesta_id>', methods=['GET', 'POST'])
+@login_required
+@teacher_required
+def editar_nota(respuesta_id):
+    respuesta = RespuestaEstudiante.query.get_or_404(respuesta_id)
+
+    if respuesta.estudiante.grado_id != current_user.docente.grado_id:
+        flash('No tienes permiso para editar esta nota.', 'danger')
+        return redirect(url_for('docentes.notas'))
+
+    if request.method == 'POST':
+        nuevo_valor = request.form.get('valor')
+        try:
+            respuesta.valor = float(nuevo_valor)
+            db.session.commit()
+            flash('Nota actualizada correctamente.', 'success')
+            return redirect(url_for('docentes.notas'))
+        except ValueError:
+            flash('Valor inválido.', 'danger')
+
+    return render_template('docentes/editar_nota.html', respuesta=respuesta)
+
+@docentes_bp.route('/notas/eliminar/<int:respuesta_id>', methods=['POST'])
+@login_required
+@teacher_required
+def eliminar_nota(respuesta_id):
+    respuesta = RespuestaEstudiante.query.get_or_404(respuesta_id)
+
+    if respuesta.estudiante.grado_id != current_user.docente.grado_id:
+        flash('No tienes permiso para eliminar esta nota.', 'danger')
+        return redirect(url_for('docentes.notas'))
+
+    db.session.delete(respuesta)
+    db.session.commit()
+    flash('Nota eliminada correctamente.', 'success')
+    return redirect(url_for('docentes.notas'))
