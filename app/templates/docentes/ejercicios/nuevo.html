@@ -1,0 +1,130 @@
+{% extends "docentes/base.html" %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Nuevo Ejercicio</h5>
+                <div class="btn-group">
+                    <a href="{{ url_for('docentes.ejercicios') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('docentes.nuevo_ejercicio') }}" enctype="multipart/form-data">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="titulo" class="form-label">Título *</label>
+                            <input type="text" class="form-control" id="titulo" name="titulo" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="grado_destinado_id" class="form-label">Grado Destinado *</label>
+                            <select class="form-select" id="grado_destinado_id" name="grado_destinado_id" required>
+                                <option value="">Seleccione un grado</option>
+                                {% for grado in grados %}
+                                <option value="{{ grado.id }}">{{ grado.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <!-- Campo oculto para el docente responsable (el que está logueado) -->
+                        <input type="hidden" name="docente_id" value="{{ current_user.docente.id }}">
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="tipo_interaccion" class="form-label">Tipo de Interacción *</label>
+                            <select class="form-select" id="tipo_interaccion" name="tipo_interaccion" required>
+                                <option value="opcion_multiple">Opción Múltiple</option>
+                                <option value="verdadero_falso">Verdadero/Falso</option>
+                                <option value="respuesta_corta">Respuesta Corta</option>
+                                <option value="desarrollo">Desarrollo</option>
+                                <option value="archivo">Archivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="ejercicio_existente" class="form-label">Seleccionar Ejercicio Existente</label>
+                            <select class="form-select" id="ejercicio_existente" name="ejercicio_existente" onchange="toggleFileUpload()">
+                                <option value="nuevo">-- Subir nuevo archivo --</option>
+                                {% for grado in ['1ro', '2do', '3ro', '4to', '5to', '6to'] %}
+                                    <optgroup label="{{ grado }}° Básico">
+                                        {% set grado_path = 'ejercicios/' + grado %}
+                                        {% if os.path.exists(os.path.join('app/static', grado_path)) %}
+                                            {% for file in os.listdir(os.path.join('app/static', grado_path)) %}
+                                                {% if file.endswith('.html') %}
+                                                    <option value="{{ grado }}/{{ file }}">{{ file.replace('.html', '').replace('_', ' ').title() }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Seleccione un ejercicio existente o suba uno nuevo</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3" id="file-upload-container">
+                        <div class="col-12">
+                            <label for="archivo" class="form-label">Archivo Adjunto (opcional)</label>
+                            <input class="form-control" type="file" id="archivo" name="archivo" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.html">
+                            <div class="form-text">Formatos permitidos: PDF, Word, JPG, PNG, HTML</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="enunciado" class="form-label">Enunciado (opcional)</label>
+                            <textarea class="form-control" id="enunciado" name="enunciado" rows="4"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('docentes.ejercicios') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Ejercicio
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFileUpload() {
+    const select = document.getElementById('ejercicio_existente');
+    const fileUpload = document.getElementById('file-upload-container');
+    
+    if (select.value === 'nuevo') {
+        fileUpload.style.display = 'flex';
+    } else {
+        fileUpload.style.display = 'none';
+    }
+}
+
+// Inicializar la visibilidad del campo de archivo
+document.addEventListener('DOMContentLoaded', function() {
+    toggleFileUpload();
+});
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Script para cargar dinámicamente los ejercicios disponibles según el grado seleccionado
+    document.getElementById('grado_destinado_id').addEventListener('change', function() {
+        const gradoId = this.value;
+        // Aquí podrías cargar dinámicamente ejercicios disponibles para el grado seleccionado
+        console.log('Grado seleccionado:', gradoId);
+    });
+</script>
+{% endblock %}
