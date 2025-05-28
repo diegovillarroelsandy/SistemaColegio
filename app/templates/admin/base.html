@@ -41,11 +41,17 @@
         --card-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
       }
 
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+
       .wrapper {
         display: flex;
         width: 100%;
         height: 100vh;
-        overflow: hidden;
         position: relative;
       }
 
@@ -60,6 +66,9 @@
         left: 0;
         top: 0;
         bottom: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
       }
 
       .sidebar.collapsed {
@@ -74,6 +83,7 @@
         align-items: center;
         gap: 1rem;
         position: relative;
+        flex-shrink: 0;
       }
 
       .sidebar-header img {
@@ -133,6 +143,83 @@
         color: var(--primary-color);
         font-weight: 500;
         box-shadow: inset 4px 0 0 var(--primary-color);
+      }
+
+      /* Sidebar Navigation */
+      .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1rem 0.5rem;
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary-color) transparent;
+        height: calc(100vh - 80px); /* Restamos la altura del header */
+      }
+
+      /* Estilos para la barra de desplazamiento */
+      .sidebar-nav::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .sidebar-nav::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .sidebar-nav::-webkit-scrollbar-thumb {
+        background-color: var(--primary-color);
+        border-radius: 3px;
+      }
+
+      .sidebar-nav:hover::-webkit-scrollbar-thumb {
+        background-color: var(--primary-hover);
+      }
+
+      .sidebar-nav ul {
+        padding-left: 0;
+        margin-bottom: 0;
+      }
+
+      /* Custom scrollbar for WebKit browsers */
+      .sidebar-nav::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .sidebar-nav::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .sidebar-nav::-webkit-scrollbar-thumb {
+        background-color: var(--primary-color);
+        border-radius: 3px;
+      }
+
+      .sidebar-nav:hover::-webkit-scrollbar-thumb {
+        background-color: var(--primary-hover);
+      }
+
+      /* Ensure the content area takes full height */
+      #content {
+        min-height: 100vh;
+        padding: 20px;
+        margin-left: var(--sidebar-width);
+        transition: margin-left var(--transition-speed);
+        background: var(--content-bg);
+      }
+      
+      .sidebar.collapsed + #content {
+        margin-left: 0;
+      }
+      
+      /* Asegurar que el contenido no se desborde en pantallas pequeñas */
+      @media (max-width: 768px) {
+        #content {
+          margin-left: 0;
+          padding: 15px;
+        }
+        
+        .sidebar:not(.collapsed) + #content {
+          margin-left: var(--sidebar-width);
+        }
       }
 
       /* Content */
@@ -333,17 +420,18 @@
           </div>
         </div>
 
-        <ul class="list-unstyled components">
-          <li>
-            <a
-              href="{{ url_for('admin.index') }}"
-              class="sidebar-link {% if request.endpoint == 'admin.index' %}active{% endif %}"
-            >
-              <i class="fas fa-home"></i>
-              <span>Dashboard</span>
-              <span class="notification-badge">3</span>
-            </a>
-          </li>
+        <div class="sidebar-nav">
+          <ul class="list-unstyled components">
+            <li>
+              <a
+                href="{{ url_for('admin.index') }}"
+                class="sidebar-link {% if request.endpoint == 'admin.index' %}active{% endif %}"
+              >
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+                <span class="notification-badge">3</span>
+              </a>
+            </li>
           <li>
             <a
               href="{{ url_for('admin.usuarios') }}"
@@ -389,7 +477,17 @@
               <span>Grados</span>
             </a>
           </li>
-        </ul>
+          <li>
+            <a
+              href="{{ url_for('admin.ejercicios') }}"
+              class="sidebar-link {% if request.endpoint == 'admin.ejercicios' or request.endpoint.startswith('admin.ver_ejercicio') or request.endpoint.startswith('admin.nuevo_ejercicio') or request.endpoint.startswith('admin.editar_ejercicio') %}active{% endif %}"
+            >
+              <i class="fas fa-tasks"></i>
+              <span>Ejercicios</span>
+            </a>
+            </li>
+          </ul>
+        </div>
       </nav>
 
       <!-- Page Content -->
