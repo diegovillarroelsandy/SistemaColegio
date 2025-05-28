@@ -1,0 +1,97 @@
+{% extends "docentes/base.html" %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">    
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Ejercicios</h5>
+                <div class="btn-group">
+                    <a href="{{ url_for('docentes.nuevo_ejercicio') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Ejercicio
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Grado</th>
+                                {# <th>Docente</th> #}
+                                <th>Fecha de Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ejercicio in ejercicios %}
+                            <tr>
+                                <td>{{ ejercicio.id }}</td>
+                                <td>{{ ejercicio.titulo or 'Sin título' }}</td>
+                                <td>
+                                    {% if ejercicio.grado_destinado %}
+                                        {{ ejercicio.grado_destinado.nombre }}
+                                    {% else %}
+                                        Sin asignar
+                                    {% endif %}
+                                </td>
+                                {#
+                                <td>
+                                    {% if ejercicio.docente %}
+                                        {{ ejercicio.docente.usuario.nombre_completo }}
+                                    {% else %}
+                                        Sin docente asignado
+                                    {% endif %}
+                                </td>
+                                #}
+                                <td>{{ ejercicio.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('docentes.ver_ejercicio', id=ejercicio.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('docentes.editar_ejercicio', id=ejercicio.id) }}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarEjercicio{{ ejercicio.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Modal de confirmación de eliminación -->
+                                    <div class="modal fade" id="eliminarEjercicio{{ ejercicio.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Confirmar eliminación</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    ¿Estás seguro de que deseas eliminar el ejercicio "{{ ejercicio.titulo or 'Sin título' }}"?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <form action="{{ url_for('docentes.eliminar_ejercicio', id=ejercicio.id) }}" method="POST" style="display:inline;">
+                                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No hay ejercicios registrados</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
