@@ -1,5 +1,4 @@
 {% extends "estudiantes/base.html" %}
-{% block role %} Estudiante {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -11,34 +10,130 @@
                 </a>
                 <h2 class="mb-0">Ejercicios Educativos</h2>
             </div>
+
+            {% if ejercicios %}
+                <div class="row g-4">
+                    {% for ejercicio in ejercicios %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ ejercicio.titulo }}</h5>
+                                <p class="card-text">{{ ejercicio.enunciado|safe }}</p>
+                                <div class="mt-4">
+                                    <button type="button" class="btn btn-primary w-100" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#juegoModal{{ ejercicio.id }}">
+                                        <i class="fas fa-play me-2"></i>Comenzar Juego
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-book-reader fa-3x text-muted mb-3"></i>
+                    <h3 class="text-muted mb-3">No hay ejercicios disponibles en este momento</h3>
+                </div>
+            {% endif %}
         </div>
     </div>
 
-    <div class="row g-4">
-        {% if ejercicios %}
-            {% for ejercicio in ejercicios %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ ejercicio.titulo }}</h5>
-                        <p class="card-text mb-3">{{ ejercicio.enunciado[:150] + '...' if ejercicio.enunciado|length > 150 else ejercicio.enunciado }}</p>
-                        <div class="d-flex justify-content-between mb-3">
-                            <small class="text-muted"><i class="fas fa-clock me-2"></i>{{ ejercicio.fecha_creacion.strftime('%d/%m/%Y') }}</small>
-                        </div>
-                        <a href="{{ url_for('estudiantes.responder_ejercicio', ejercicio_id=ejercicio.id) }}" class="btn btn-primary w-100">
-                            <i class="fas fa-pencil-alt me-2"></i>Resolver Ejercicio
-                        </a>
-                    </div>
+    <!-- Modal para cada juego -->
+    {% for ejercicio in ejercicios %}
+    <div class="modal fade" id="juegoModal{{ ejercicio.id }}" tabindex="-1" aria-labelledby="juegoModalLabel{{ ejercicio.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="juegoModalLabel{{ ejercicio.id }}">{{ ejercicio.titulo }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if ejercicio.archivo_url %}
+                    <iframe src="{{ url_for('static', filename=ejercicio.archivo_url) }}" 
+                            width="100%" height="600px" 
+                            style="border: none;" 
+                            allowfullscreen></iframe>
+                    {% else %}
+                    <p class="game-description">{{ ejercicio.enunciado|safe }}</p>
+                    {% endif %}
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12 text-center py-5">
-                <i class="fas fa-book-reader fa-3x text-muted mb-3"></i>
-                <h3 class="text-muted mb-3">No hay ejercicios disponibles en este momento</h3>
-                <p class="text-muted">Tu docente aún no ha creado ejercicios para tu grado. ¡Vuelve pronto para ver los nuevos ejercicios!</p>
-            </div>
-        {% endif %}
+        </div>
     </div>
+    {% endfor %}
 </div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .card {
+        height: 100%;
+        transition: transform 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .card-text {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .btn-primary {
+        background-color: #4CAF50;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #45a049;
+        transform: translateY(-2px);
+    }
+
+    .fas {
+        transition: transform 0.3s ease;
+    }
+
+    .btn-primary:hover .fas {
+        transform: translateX(5px);
+    }
+
+    .modal-content {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .game-description {
+        font-size: 1.1rem;
+        color: #333;
+        line-height: 1.6;
+    }
+</style>
 {% endblock %}
