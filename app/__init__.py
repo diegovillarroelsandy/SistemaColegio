@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -21,13 +22,20 @@ def create_app():
     def load_user(id):
         return Usuario.query.get(int(id))
 
+    # Hacer que 'os' esté disponible en todas las plantillas
+    @app.context_processor
+    def inject_os():
+        return dict(os=os)
+    
     from .routes.main import main_bp
     from .routes.auth import auth_bp
     from .routes.docentes import docentes_bp
     from .routes.admin import admin_bp
+    from .routes.estudiantes import estudiantes_bp
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(docentes_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(estudiantes_bp)
     
     return app

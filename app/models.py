@@ -121,6 +121,7 @@ class Ejercicio(db.Model):
     grado_destinado_id = db.Column(db.Integer, db.ForeignKey('grados.id', ondelete='SET NULL'))
     docente_id = db.Column(db.Integer, db.ForeignKey('docentes.id', ondelete='SET NULL'))
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    archivo_url = db.Column(db.String(255))
     respuestas = db.relationship('RespuestaEstudiante', backref='ejercicio', lazy=True)
 
 class RespuestaEstudiante(db.Model):
@@ -132,3 +133,4 @@ class RespuestaEstudiante(db.Model):
     correcta = db.Column(db.Boolean)
     retroalimentacion = db.Column(db.Text)
     fecha_respuesta = db.Column(db.DateTime, default=datetime.utcnow)
+    valor = db.Column(db.Float, nullable=True) 

@@ -136,6 +136,7 @@
             position: relative;
             margin-left: var(--sidebar-width);
             transition: margin-left var(--transition-speed);
+            overflow-y: auto;
         }
 
         .sidebar.collapsed + #content {
@@ -255,56 +256,85 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+
     <div class="wrapper">
-        {% block sidebar %}
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo Colegio" class="me-2" style="width: 40px; height: 40px;">
-                <div>
-                    <h5>{% block role %}Docente{% endblock %}</h5>
-                    <small>{{ current_user.nombre_completo }}</small>
-                </div>
-            </div>
-            {% block sidebar_content %}{% endblock %}
-        </nav>
-        {% endblock %}
-
-        <div id="content">
-            {% block navbar %}
-            <nav class="navbar">
-                <div class="container-fluid">
-                    <button class="btn btn-light" id="sidebarToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div class="d-flex align-items-center">
-                        {% if current_user.is_authenticated %}
-                        <div class="dropdown">
-                            <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                                <i class="fas fa-user"></i> {{ current_user.nombre_completo }}
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Cerrar Sesión</a></li>
-                            </ul>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </nav>
-            {% endblock %}
-
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            {% block content %}{% endblock %}
+      <!-- Sidebar -->
+      <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo" />
+          <div>
+            <h5>Panel Docente</h5>
+            <small>{{ current_user.nombre_completo }}</small>
+          </div>
         </div>
+        <div class="sidebar-nav">
+          <ul class="list-unstyled components">
+            <li>
+              <a href="{{ url_for('docentes.index') }}" class="sidebar-link {% if request.endpoint == 'docentes.index' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('docentes.estudiantes') }}" class="sidebar-link {% if request.endpoint == 'docentes.estudiantes' %}active{% endif %}">
+                <i class="fas fa-users"></i>
+                <span>Estudiantes</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('docentes.contenido') }}" class="sidebar-link {% if request.endpoint == 'docentes.contenido' %}active{% endif %}">
+                <i class="fas fa-book"></i>
+                <span>Contenido</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('docentes.ejercicios') }}" class="sidebar-link {% if request.endpoint == 'docentes.ejercicios' or request.endpoint.startswith('docentes.ejercicios') %}active{% endif %}">
+                <i class="fas fa-tasks"></i>
+                <span>Ejercicios</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('docentes.notas') }}" class="sidebar-link {% if request.endpoint == 'docentes.notas' %}active{% endif %}">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Notas</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Page Content -->
+      <div id="content" class="container-fluid fade-in">
+        <nav class="navbar">
+          <div class="d-flex justify-content-between align-items-center">
+            <button id="sidebar-toggle" class="btn btn-link text-primary">
+              <i class="fas fa-bars"></i>
+            </button>
+            <div class="d-flex align-items-center">
+              <div class="dropdown">
+                <button class="btn btn-link text-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                  <i class="fas fa-user-circle"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                      <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <div class="page-header mb-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">{% block page_title %}{% endblock %}</h2>
+            {% block page_actions %}{% endblock %}
+          </div>
+        </div>
+        {% block admin_content %}{% endblock %}
+      </div>
     </div>
 
     <div class="loading-overlay">
@@ -350,4 +380,4 @@
     </script>
     {% block extra_js %}{% endblock %}
 </body>
-</html> 
+</html>

@@ -21,7 +21,7 @@ def login():
             elif usuario.has_role('docente'):
                 return redirect(url_for('docentes.index'))
             elif usuario.has_role('estudiante'):
-                return redirect(url_for('main.index'))
+                return redirect(url_for('estudiantes.index'))
             else:
                 return redirect(url_for('main.index'))
         else:
