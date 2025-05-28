@@ -5,10 +5,16 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from .config import SQLALCHEMY_DATABASE_URI, SECRET_KEY
 from .models import db, Usuario
-
-def create_app():
+#def create_app():
+def create_app(config_name=None):
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+    #    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+    if config_name == 'testing':
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        app.config['TESTING'] = True
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+    
     app.config['SECRET_KEY'] = SECRET_KEY
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
