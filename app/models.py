@@ -118,10 +118,16 @@ class Ejercicio(db.Model):
     titulo = db.Column(db.String(100))
     enunciado = db.Column(db.Text, nullable=False)
     tipo_interaccion = db.Column(db.String(50))
+    archivo_url = db.Column(db.Text)
     grado_destinado_id = db.Column(db.Integer, db.ForeignKey('grados.id', ondelete='SET NULL'))
     docente_id = db.Column(db.Integer, db.ForeignKey('docentes.id', ondelete='SET NULL'))
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
     respuestas = db.relationship('RespuestaEstudiante', backref='ejercicio', lazy=True)
+
+    def get_html_content(self):
+        if self.archivo_url:
+            return self.archivo_url
+        return self.enunciado
 
 class RespuestaEstudiante(db.Model):
     __tablename__ = 'respuestas_estudiantes'
