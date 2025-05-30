@@ -1,8 +1,8 @@
-"""migracion
+"""initial migration
 
-Revision ID: f9a2b8925a90
-Revises: 
-Create Date: 2025-05-22 22:30:44.152654
+Revision ID: e3283889d3cf
+Revises: 4e1b5f1a59a9
+Create Date: 2025-05-28 08:39:32.963699
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f9a2b8925a90'
-down_revision = None
+revision = 'e3283889d3cf'
+down_revision = '4e1b5f1a59a9'
 branch_labels = None
 depends_on = None
 
@@ -112,6 +112,7 @@ def upgrade():
     sa.Column('grado_destinado_id', sa.Integer(), nullable=True),
     sa.Column('docente_id', sa.Integer(), nullable=True),
     sa.Column('fecha_creacion', sa.DateTime(), nullable=True),
+    sa.Column('archivo_url', sa.String(length=255), nullable=True),
     sa.ForeignKeyConstraint(['docente_id'], ['docentes.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['grado_destinado_id'], ['grados.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
@@ -124,6 +125,7 @@ def upgrade():
     sa.Column('correcta', sa.Boolean(), nullable=True),
     sa.Column('retroalimentacion', sa.Text(), nullable=True),
     sa.Column('fecha_respuesta', sa.DateTime(), nullable=True),
+    sa.Column('valor', sa.Float(), nullable=True),
     sa.ForeignKeyConstraint(['ejercicio_id'], ['ejercicios.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['estudiante_id'], ['estudiantes.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
