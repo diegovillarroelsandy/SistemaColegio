@@ -1,0 +1,213 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Notas - Panel de Administración{% endblock %}
+
+{% block page_title %}Resumen de Calificaciones{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Resumen General</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-primary text-white mb-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-white-50 small">Total Estudiantes</h6>
+                                        <h2 class="mb-0">{{ total_estudiantes }}</h2>
+                                    </div>
+                                    <i class="fas fa-users fa-2x text-white-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-white-50 small">Total Ejercicios</h6>
+                                        <h2 class="mb-0">{{ total_ejercicios }}</h2>
+                                    </div>
+                                    <i class="fas fa-tasks fa-2x text-white-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-info text-white mb-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-white-50 small">Grados Activos</h6>
+                                        <h2 class="mb-0">{{ total_grados }}</h2>
+                                    </div>
+                                    <i class="fas fa-graduation-cap fa-2x text-white-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <ul class="nav nav-tabs" id="gradosTabs" role="tablist">
+                        {% for grado_nombre, datos_grado in datos_agrupados.items() %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if loop.first %}active{% endif %}" 
+                                    id="grado-{{ loop.index }}-tab" 
+                                    data-bs-toggle="tab" 
+                                    data-bs-target="#grado-{{ loop.index }}" 
+                                    type="button" 
+                                    role="tab" 
+                                    aria-controls="grado-{{ loop.index }}" 
+                                    aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+                                {{ grado_nombre }}
+                            </button>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="tab-content p-3 border border-top-0 rounded-bottom" id="gradosTabsContent">
+                        {% for grado_nombre, datos_grado in datos_agrupados.items() %}
+                        <div class="tab-pane fade {% if loop.first %}show active{% endif %}" 
+                             id="grado-{{ loop.index }}" 
+                             role="tabpanel" 
+                             aria-labelledby="grado-{{ loop.index }}-tab">
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Estudiante</th>
+                                            <th class="text-center">Ejercicios</th>
+                                            <th class="text-center">Promedio</th>
+                                            <th class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for estudiante_id, estudiante in datos_grado.estudiantes.items() %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="ms-3">
+                                                        <h6 class="mb-0">{{ estudiante.nombre }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="progress" style="height: 20px;">
+                                                    {% set porcentaje = (estudiante.total_ejercicios / total_ejercicios * 100) if total_ejercicios > 0 else 0 %}
+                                                    <div class="progress-bar bg-{{ 'success' if porcentaje >= 70 else 'warning' }}" 
+                                                         role="progressbar" 
+                                                         style="width: {{ porcentaje }}%"
+                                                         aria-valuenow="{{ porcentaje }}" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                        {{ estudiante.total_ejercicios }} de {{ total_ejercicios }}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-{{ 'success' if estudiante.promedio >= 70 else 'warning' }}">
+                                                    {{ "%.2f"|format(estudiante.promedio) }}%
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-sm btn-outline-primary" 
+                                                        type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#detalle-{{ grado_nombre|replace(' ', '-') }}-{{ estudiante.id }}" 
+                                                        aria-expanded="false" 
+                                                        aria-controls="detalle-{{ grado_nombre|replace(' ', '-') }}-{{ estudiante.id }}">
+                                                    <i class="fas fa-chevron-down"></i> Detalle
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" class="p-0">
+                                                <div class="collapse" id="detalle-{{ grado_nombre|replace(' ', '-') }}-{{ estudiante.id }}">
+                                                    <div class="card card-body bg-light">
+                                                        <h6 class="mb-3">
+                                                            <i class="fas fa-tasks me-2"></i>
+                                                            Ejercicios de {{ estudiante.nombre }} - {{ grado_nombre }}
+                                                        </h6>
+                                                        <div class="table-responsive">
+                                                            <table class="table table-sm table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Ejercicio</th>
+                                                                        <th class="text-center">Puntuación</th>
+                                                                        <th class="text-center">Docente</th>
+                                                                        <th class="text-center">Fecha</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% if estudiante.ejercicios %}
+                                                                        {% for ejercicio_id, ejercicio in estudiante.ejercicios.items() %}
+                                                                        <tr>
+                                                                            <td>{{ ejercicio.titulo }}</td>
+                                                                            <td class="text-center">
+                                                                                <span class="badge bg-{{ 'success' if ejercicio.puntuacion >= 70 else 'danger' }}">
+                                                                                    {{ "%.2f"|format(ejercicio.puntuacion) }}%
+                                                                                </span>
+                                                                            </td>
+                                                                            <td class="text-center">{{ ejercicio.docente }}</td>
+                                                                            <td class="text-center">{{ ejercicio.fecha }}</td>
+                                                                        </tr>
+                                                                        {% endfor %}
+                                                                    {% else %}
+                                                                        <tr>
+                                                                            <td colspan="4" class="text-center text-muted">
+                                                                                <i class="fas fa-info-circle me-2"></i>
+                                                                                No hay ejercicios registrados
+                                                                            </td>
+                                                                        </tr>
+                                                                    {% endif %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Inicializar pestañas si existen
+    var tabElms = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabElms.forEach(function(tabEl) {
+        tabEl.addEventListener('click', function(event) {
+            event.preventDefault();
+            var tab = new bootstrap.Tab(tabEl);
+            tab.show();
+        });
+    });
+});
+</script>
+{% endblock %}

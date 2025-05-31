@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sumas BÃ¡sicas - 1er Grado</title>
+    <title>Sumas Básicas - 1er Grado</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -85,7 +85,7 @@
 </head>
 <body>
     <div class="container game-container">
-        <h1 class="text-center mb-4">Â¡Aprende a Sumar! <span class="badge bg-primary">1er Grado</span></h1>
+        <h1 class="text-center mb-4">¡Aprende a Sumar! <span class="badge bg-primary">1er Grado</span></h1>
         
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="score">Puntos: <span id="score">0</span></div>
@@ -98,7 +98,7 @@
         <div class="problem" id="problem">3 + 4 = ?</div>
         
         <div class="options" id="options">
-            <!-- Las opciones se generarÃ¡n con JavaScript -->
+            <!-- Las opciones se generarán con JavaScript -->
         </div>
         
         <div class="feedback" id="feedback"></div>
@@ -116,7 +116,7 @@
         let currentQuestion = 0;
         const totalQuestions = 10;
         let correctAnswer;
-        let ejercicioCompletado = false; // Para evitar envÃ­os mÃºltiples
+        let ejercicioCompletado = false; // Para evitar envíos múltiples
 
         // Elementos del DOM
         const problemElement = document.getElementById('problem');
@@ -185,24 +185,24 @@
                 }
             });
             
-            // Mostrar retroalimentaciÃ³n
+            // Mostrar retroalimentación
             if (selectedOption === correctAnswer) {
-                feedbackElement.textContent = 'Â¡Correcto! Â¡Buen trabajo!';
+                feedbackElement.textContent = '¡Correcto! ¡Buen trabajo!';
                 feedbackElement.className = 'feedback correct';
                 score += 10;
                 scoreElement.textContent = score;
             } else {
-                feedbackElement.textContent = `Â¡Casi! La respuesta correcta es ${correctAnswer}.`;
+                feedbackElement.textContent = `¡Casi! La respuesta correcta es ${correctAnswer}.`;
                 feedbackElement.className = 'feedback incorrect';
             }
             
-            // Mostrar botÃ³n de siguiente
+            // Mostrar botón de siguiente
             nextButton.style.display = 'block';
         }
         
-        // FunciÃ³n para enviar la puntuaciÃ³n al servidor
+        // Función para enviar la puntuación al servidor
         async function enviarPuntuacion() {
-            if (ejercicioCompletado) return; // Evitar envÃ­os mÃºltiples
+            if (ejercicioCompletado) return; // Evitar envíos múltiples
             
             try {
                 const response = await fetch('/estudiantes/guardar_puntuacion/' + ejercicioId, {
@@ -215,42 +215,42 @@
                         puntuacion: score,
                         total_preguntas: totalQuestions
                     }),
-                    credentials: 'same-origin' // Importante para enviar la cookie de sesiÃ³n
+                    credentials: 'same-origin' // Importante para enviar la cookie de sesión
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Error al guardar la puntuaciÃ³n: ' + response.statusText);
+                    throw new Error('Error al guardar la puntuación: ' + response.statusText);
                 }
                 
                 const data = await response.json();
-                console.log('PuntuaciÃ³n guardada:', data);
+                console.log('Puntuación guardada:', data);
                 ejercicioCompletado = true;
                 
-                // Mostrar mensaje de Ã©xito
-                feedbackElement.textContent = 'Â¡Ejercicio completado! Tu puntuaciÃ³n ha sido guardada.';
+                // Mostrar mensaje de éxito
+                feedbackElement.textContent = '¡Ejercicio completado! Tu puntuación ha sido guardada.';
                 feedbackElement.className = 'feedback correct';
                 
-                // Ocultar botÃ³n de siguiente
+                // Ocultar botón de siguiente
                 nextButton.style.display = 'none';
                 
-                // Mostrar botÃ³n para volver a la lista de ejercicios
+                // Mostrar botón para volver a la lista de ejercicios
                 const volverBtn = document.createElement('a');
                 volverBtn.href = '/estudiantes/ejercicios';
                 volverBtn.className = 'btn btn-primary w-100 mt-3';
                 volverBtn.textContent = 'Volver a la lista de ejercicios';
                 document.querySelector('.container').appendChild(volverBtn);
                 
-                // TambiÃ©n redirigir automÃ¡ticamente despuÃ©s de 3 segundos
+                // También redirigir automáticamente después de 3 segundos
                 setTimeout(() => {
-                    window.close();
+                    window.location.href = '/estudiantes/ejercicios';
                 }, 3000);
                 
             } catch (error) {
                 console.error('Error:', error);
-                feedbackElement.textContent = 'Error al guardar la puntuaciÃ³n: ' + error.message;
+                feedbackElement.textContent = 'Error al guardar la puntuación: ' + error.message;
                 feedbackElement.className = 'feedback incorrect';
                 
-                // Mostrar botÃ³n para reintentar
+                // Mostrar botón para reintentar
                 const reintentarBtn = document.createElement('button');
                 reintentarBtn.className = 'btn btn-warning w-100 mt-3';
                 reintentarBtn.textContent = 'Reintentar guardar';
@@ -276,16 +276,16 @@
                 // Juego terminado
                 const result = Math.round((score / (totalQuestions * 10)) * 100);
                 problemElement.innerHTML = `
-                    <h3>Â¡Juego Terminado!</h3>
-                    <p>Tu puntuaciÃ³n final es: <strong>${score} / ${totalQuestions * 10}</strong></p>
+                    <h3>¡Juego Terminado!</h3>
+                    <p>Tu puntuación final es: <strong>${score} / ${totalQuestions * 10}</strong></p>
                     <p>Porcentaje de aciertos: <strong>${result}%</strong></p>
-                    <p>${result >= 70 ? 'Â¡Excelente trabajo! ðŸŽ‰' : 'Â¡Sigue practicando! ðŸ’ª'}</p>
+                    <p>${result >= 70 ? '¡Excelente trabajo! 🎉' : '¡Sigue practicando! 💪'}</p>
                 `;
                 optionsElement.style.display = 'none';
                 
-                // Cambiar el botÃ³n a "Guardar puntuaciÃ³n"
+                // Cambiar el botón a "Guardar puntuación"
                 const nextBtn = document.getElementById('nextBtn');
-                nextBtn.textContent = 'Guardar puntuaciÃ³n';
+                nextBtn.textContent = 'Guardar puntuación';
                 nextBtn.onclick = function() {
                     enviarPuntuacion();
                 };

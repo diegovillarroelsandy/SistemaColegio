@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ciencias Naturales - 4to Grado</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -153,7 +153,7 @@
         </div>
         
         <div class="options" id="options">
-            <!-- Las opciones se generarÃ¡n con JavaScript -->
+            <!-- Las opciones se generarán con JavaScript -->
         </div>
         
         <div class="feedback" id="feedback"></div>
@@ -281,7 +281,7 @@
             // Actualizar la interfaz
             questionElement.textContent = question.pregunta;
             
-            // Mostrar imagen si estÃ¡ disponible
+            // Mostrar imagen si está disponible
             if (question.imagen) {
                 questionImage.src = question.imagen;
                 questionImage.style.display = 'block';
@@ -312,10 +312,10 @@
             // Actualizar contador de preguntas
             currentElement.textContent = index + 1;
             
-            // Ocultar botÃ³n de siguiente
+            // Ocultar botón de siguiente
             nextButton.style.display = 'none';
             
-            // Limpiar retroalimentaciÃ³n
+            // Limpiar retroalimentación
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
         }
@@ -336,7 +336,7 @@
             // Verificar si la respuesta es correcta
             if (selectedIndex === currentCorrectAnswer) {
                 options[selectedIndex].classList.add('correct');
-                feedbackElement.textContent = 'Â¡Correcto! ' + currentQuestionObj.explicacion;
+                feedbackElement.textContent = '¡Correcto! ' + currentQuestionObj.explicacion;
                 feedbackElement.className = 'feedback correct-feedback';
                 score += 10;
                 scoreElement.textContent = score;
@@ -349,7 +349,7 @@
             // Mostrar pista
             hintElement.textContent = currentQuestionObj.explicacion;
             
-            // Mostrar botÃ³n de siguiente
+            // Mostrar botón de siguiente
             nextButton.style.display = 'block';
         }
         
@@ -404,7 +404,7 @@
                 
                 // También redirigir automáticamente después de 3 segundos
                 setTimeout(() => {
-                    window.close();
+                    window.location.href = '/estudiantes/ejercicios';
                 }, 3000);
                 
             } catch (error) {
@@ -438,13 +438,13 @@
             
             if (result >= 80) {
                 message = '¡Excelente trabajo! Eres un experto en ciencias.';
-                emoji = 'ðŸŽ‰';
+                emoji = '🎉';
             } else if (result >= 60) {
                 message = '¡Buen trabajo! Sigue aprendiendo.';
-                emoji = 'ðŸ‘';
+                emoji = '👍';
             } else {
                 message = '¡Sigue practicando! La ciencia es fascinante.';
-                emoji = '';
+                emoji = '🔬';
             }
             
             resultContainer.innerHTML = `

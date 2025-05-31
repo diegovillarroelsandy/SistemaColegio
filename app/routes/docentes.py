@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from flask_login import login_required, current_user
 from app.decorators import teacher_required
 import os
+import time
 from werkzeug.utils import secure_filename
 from app.models import db, Usuario, Rol, Docente, Estudiante, Grado, Contenido, Ejercicio, RespuestaEstudiante
 from werkzeug.security import generate_password_hash
@@ -97,15 +98,74 @@ def calificaciones():
 @login_required
 @teacher_required
 def notas():
+    # Obtener el grado del docente
     grado_id = current_user.docente.grado_id
-    notas = (
-        RespuestaEstudiante.query
-        .join(Estudiante)
-        .join(Ejercicio)
-        .filter(Estudiante.grado_id == grado_id, RespuestaEstudiante.valor != None)
+    
+    # Obtener todos los estudiantes del mismo grado que el docente
+    estudiantes = Estudiante.query.filter_by(grado_id=grado_id).all()
+    
+    # Obtener todos los ejercicios creados por el docente
+    ejercicios = Ejercicio.query.filter_by(docente_id=current_user.docente.id).all()
+    
+    # Obtener todas las respuestas de los estudiantes del mismo grado
+    respuestas = (
+        db.session.query(
+            RespuestaEstudiante,
+            Estudiante,
+            Ejercicio,
+            Usuario
+        )
+        .join(Estudiante, RespuestaEstudiante.estudiante_id == Estudiante.id)
+        .join(Usuario, Estudiante.usuario_id == Usuario.id)
+        .join(Ejercicio, RespuestaEstudiante.ejercicio_id == Ejercicio.id)
+        .filter(
+            Estudiante.grado_id == grado_id,
+            Ejercicio.docente_id == current_user.docente.id,
+            RespuestaEstudiante.valor.isnot(None)
+        )
+        .order_by(
+            Usuario.nombre_completo.asc(),
+            Ejercicio.titulo.asc()
+        )
         .all()
     )
-    return render_template('docentes/notas.html', notas=notas)
+    
+    # Agrupar respuestas por estudiante
+    estudiantes_data = {}
+    for respuesta, estudiante, ejercicio, usuario in respuestas:
+        if estudiante.id not in estudiantes_data:
+            estudiantes_data[estudiante.id] = {
+                'id': estudiante.id,
+                'nombre': usuario.nombre_completo,
+                'ejercicios': {},
+                'promedio': 0,
+                'total_ejercicios': 0,
+                'ejercicios_completados': 0,
+                'puntaje_total': 0
+            }
+        
+        # Agregar ejercicio al estudiante
+        estudiantes_data[estudiante.id]['ejercicios'][ejercicio.id] = {
+            'titulo': ejercicio.titulo,
+            'puntuacion': respuesta.valor,
+            'fecha': respuesta.fecha_respuesta.strftime('%d/%m/%Y %H:%M'),
+            'correcto': respuesta.correcta
+        }
+        
+        # Actualizar estadísticas
+        estudiantes_data[estudiante.id]['puntaje_total'] += respuesta.valor
+        estudiantes_data[estudiante.id]['ejercicios_completados'] += 1
+    
+    # Calcular promedios
+    for estudiante_id, data in estudiantes_data.items():
+        if data['ejercicios_completados'] > 0:
+            data['promedio'] = round(data['puntaje_total'] / data['ejercicios_completados'], 2)
+    
+    return render_template('docentes/notas.html', 
+                         estudiantes=list(estudiantes_data.values()),
+                         ejercicios=ejercicios,
+                         total_estudiantes=len(estudiantes),
+                         total_ejercicios=len(ejercicios))
 
 @docentes_bp.route('/notas/agregar', methods=['GET', 'POST'])
 @login_required
@@ -186,7 +246,20 @@ def allowed_file(filename):
 @login_required
 @teacher_required
 def ejercicios():
+    # Verificar si el usuario actual tiene un docente asociado
+    if not hasattr(current_user, 'docente') or not current_user.docente:
+        flash('Error: No se encontró un perfil de docente asociado a su cuenta.', 'error')
+        current_app.logger.error(f'Usuario {current_user.id} ({current_user.correo}) no tiene un perfil de docente asociado')
+        return redirect(url_for('main.index'))
+    
+    # Obtener solo los ejercicios del docente actual
     ejercicios = Ejercicio.query.filter_by(docente_id=current_user.docente.id).order_by(Ejercicio.fecha_creacion.desc()).all()
+    
+    # Registrar información de depuración
+    current_app.logger.info(f'Mostrando {len(ejercicios)} ejercicios para el docente {current_user.docente.id} ({current_user.nombre_completo})')
+    for ejercicio in ejercicios:
+        current_app.logger.info(f'Ejercicio ID: {ejercicio.id}, Título: {ejercicio.titulo}, Docente ID: {ejercicio.docente_id}')
+    
     return render_template('docentes/ejercicios/index.html', ejercicios=ejercicios)
 
 @docentes_bp.route('/ejercicios/nuevo', methods=['GET', 'POST'])
@@ -213,13 +286,19 @@ def nuevo_ejercicio():
             if 'archivo' in request.files and request.files['archivo'].filename != '':
                 archivo = request.files['archivo']
                 if archivo and allowed_file(archivo.filename):
-                    upload_folder = os.path.join(current_app.static_folder, 'uploads', 'ejercicios')
+                    # Crear carpeta de grado si no existe
+                    grado_folder = f"grado_{grado_destinado_id}"
+                    upload_folder = os.path.join(current_app.static_folder, 'ejercicios', grado_folder)
                     os.makedirs(upload_folder, exist_ok=True)
+                    
+                    # Generar nombre de archivo seguro
                     filename = secure_filename(archivo.filename)
-                    unique_filename = f"{os.urandom(8).hex()}_{filename}"
+                    unique_filename = f"{int(time.time())}_{filename}"  # Usar timestamp para evitar colisiones
                     filepath = os.path.join(upload_folder, unique_filename)
+                    
+                    # Guardar archivo
                     archivo.save(filepath)
-                    archivo_url = f'uploads/ejercicios/{unique_filename}'.replace('\\', '/')
+                    archivo_url = f'ejercicios/{grado_folder}/{unique_filename}'.replace('\\', '/')
                 else:
                     flash('Tipo de archivo no permitido', 'error')
                     return redirect(request.url)
@@ -252,6 +331,7 @@ def nuevo_ejercicio():
 @teacher_required
 def ver_ejercicio(id):
     ejercicio = Ejercicio.query.get_or_404(id)
+    # Solo el docente que creó el ejercicio puede verlo
     if ejercicio.docente_id != current_user.docente.id:
         abort(403)
     return render_template('docentes/ejercicios/ver.html', ejercicio=ejercicio)
@@ -274,34 +354,6 @@ def editar_ejercicio(id):
             if not all([ejercicio.titulo, ejercicio.enunciado, ejercicio.tipo_interaccion, ejercicio.grado_destinado_id]):
                 flash('Todos los campos son obligatorios', 'error')
                 return redirect(request.url)
-
-            grado = Grado.query.get(ejercicio.grado_destinado_id)
-            if not grado:
-                flash('El grado seleccionado no existe', 'error')
-                return redirect(request.url)
-
-            if 'archivo' in request.files:
-                archivo = request.files['archivo']
-                if archivo.filename != '':
-                    if archivo and allowed_file(archivo.filename):
-                        if ejercicio.archivo_url:
-                            try:
-                                filepath = os.path.join(current_app.static_folder, ejercicio.archivo_url)
-                                if os.path.exists(filepath):
-                                    os.remove(filepath)
-                            except Exception as e:
-                                current_app.logger.error(f"Error al eliminar archivo anterior: {str(e)}")
-
-                        upload_folder = os.path.join(current_app.static_folder, 'uploads', 'ejercicios')
-                        os.makedirs(upload_folder, exist_ok=True)
-                        filename = secure_filename(archivo.filename)
-                        unique_filename = f"{os.urandom(8).hex()}_{filename}"
-                        filepath = os.path.join(upload_folder, unique_filename)
-                        archivo.save(filepath)
-                        ejercicio.archivo_url = f'uploads/ejercicios/{unique_filename}'.replace('\\', '/')
-                    else:
-                        flash('Tipo de archivo no permitido', 'error')
-                        return redirect(request.url)
 
             db.session.commit()
             flash('Ejercicio actualizado exitosamente', 'success')

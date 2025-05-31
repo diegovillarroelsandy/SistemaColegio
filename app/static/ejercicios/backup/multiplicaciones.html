@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -146,10 +146,10 @@
         </div>
         
         <div id="gameArea" style="display: none;">
-            <div class="problem" id="problem">3 Ã— 4 = ?</div>
+            <div class="problem" id="problem">3 × 4 = ?</div>
             
             <div class="options" id="options">
-                <!-- Las opciones se generarÃ¡n con JavaScript -->
+                <!-- Las opciones se generarán con JavaScript -->
             </div>
             
             <div class="timer" id="timer">Tiempo: <span id="time">30</span>s</div>
@@ -187,7 +187,7 @@
         const timesTable = document.getElementById('timesTable');
         const tableButtons = document.querySelectorAll('.times-table button');
 
-        // Generar preguntas para una tabla especÃ­fica
+        // Generar preguntas para una tabla específica
         function generateQuestions(table) {
             questions = [];
             for (let i = 1; i <= 10; i++) {
@@ -220,7 +220,7 @@
             }, 1000);
         }
 
-        // Generar una pregunta de multiplicaciÃ³n
+        // Generar una pregunta de multiplicación
         function generateQuestion() {
             if (currentQuestion >= totalQuestions) {
                 endGame();
@@ -231,7 +231,7 @@
             correctAnswer = question.answer;
             
             // Mostrar el problema
-            problemElement.textContent = `${question.num1} Ã— ${question.num2} = ?`;
+            problemElement.textContent = `${question.num1} × ${question.num2} = ?`;
             
             // Generar opciones de respuesta
             const options = [correctAnswer];
@@ -296,22 +296,22 @@
                 }
             });
             
-            // Mostrar retroalimentaciÃ³n
+            // Mostrar retroalimentación
             if (selectedOption === correctAnswer) {
-                feedbackElement.textContent = 'Â¡Correcto! Â¡Excelente!';
+                feedbackElement.textContent = '¡Correcto! ¡Excelente!';
                 feedbackElement.className = 'feedback correct';
                 score += 10;
                 scoreElement.textContent = score;
             } else {
                 if (selectedOption === null) {
-                    feedbackElement.textContent = `Â¡Se acabÃ³ el tiempo! La respuesta era ${correctAnswer}.`;
+                    feedbackElement.textContent = `¡Se acabó el tiempo! La respuesta era ${correctAnswer}.`;
                 } else {
-                    feedbackElement.textContent = `Â¡Ups! La respuesta correcta es ${correctAnswer}.`;
+                    feedbackElement.textContent = `¡Ups! La respuesta correcta es ${correctAnswer}.`;
                 }
                 feedbackElement.className = 'feedback incorrect';
             }
             
-            // Mostrar botÃ³n de siguiente
+            // Mostrar botón de siguiente
             nextButton.style.display = 'block';
         }
         
@@ -332,9 +332,9 @@
             }
         };
         
-        // FunciÃ³n para enviar la puntuaciÃ³n al servidor
+        // Función para enviar la puntuación al servidor
         async function enviarPuntuacion(puntuacion, totalPreguntas) {
-            if (ejercicioCompletado) return; // Evitar envÃ­os mÃºltiples
+            if (ejercicioCompletado) return; // Evitar envíos múltiples
             
             try {
                 const response = await fetch('/estudiantes/guardar_puntuacion/' + ejercicioId, {
@@ -347,33 +347,33 @@
                         puntuacion: puntuacion,
                         total_preguntas: totalPreguntas
                     }),
-                    credentials: 'same-origin' // Importante para enviar la cookie de sesiÃ³n
+                    credentials: 'same-origin' // Importante para enviar la cookie de sesión
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Error al guardar la puntuaciÃ³n: ' + response.statusText);
+                    throw new Error('Error al guardar la puntuación: ' + response.statusText);
                 }
                 
                 const data = await response.json();
-                console.log('PuntuaciÃ³n guardada:', data);
+                console.log('Puntuación guardada:', data);
                 ejercicioCompletado = true;
                 
-                // Mostrar mensaje de Ã©xito
+                // Mostrar mensaje de éxito
                 const feedbackDiv = document.createElement('div');
                 feedbackDiv.className = 'alert alert-success mt-3';
-                feedbackDiv.textContent = 'Â¡Ejercicio completado! Tu puntuaciÃ³n ha sido guardada.';
+                feedbackDiv.textContent = '¡Ejercicio completado! Tu puntuación ha sido guardada.';
                 problemElement.querySelector('div').appendChild(feedbackDiv);
                 
-                // Mostrar botÃ³n para volver a la lista de ejercicios
+                // Mostrar botón para volver a la lista de ejercicios
                 const volverBtn = document.createElement('a');
                 volverBtn.href = '/estudiantes/ejercicios';
                 volverBtn.className = 'btn btn-primary w-100 mt-3';
                 volverBtn.textContent = 'Volver a la lista de ejercicios';
                 problemElement.querySelector('div').appendChild(volverBtn);
                 
-                // TambiÃ©n redirigir automÃ¡ticamente despuÃ©s de 3 segundos
+                // También redirigir automáticamente después de 3 segundos
                 setTimeout(() => {
-                    window.close();
+                    window.location.href = '/estudiantes/ejercicios';
                 }, 3000);
                 
             } catch (error) {
@@ -381,7 +381,7 @@
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'alert alert-danger mt-3';
                 errorDiv.innerHTML = `
-                    Error al guardar la puntuaciÃ³n: ${error.message}
+                    Error al guardar la puntuación: ${error.message}
                     <button class="btn btn-warning btn-sm ms-2" onclick="enviarPuntuacion(${puntuacion}, ${totalPreguntas})">
                         Reintentar
                     </button>
@@ -395,10 +395,10 @@
             const result = Math.round((score / (totalQuestions * 10)) * 100);
             problemElement.innerHTML = `
                 <div class="text-center">
-                    <h3>Â¡Juego Terminado!</h3>
-                    <p>Tu puntuaciÃ³n final es: <strong>${score} / ${totalQuestions * 10}</strong></p>
+                    <h3>¡Juego Terminado!</h3>
+                    <p>Tu puntuación final es: <strong>${score} / ${totalQuestions * 10}</strong></p>
                     <p>Porcentaje de aciertos: <strong>${result}%</strong></p>
-                    <p>${result >= 70 ? 'Â¡Excelente trabajo! ðŸŽ‰' : 'Â¡Sigue practicando! ðŸ’ª'}</p>
+                    <p>${result >= 70 ? '¡Excelente trabajo! 🎉' : '¡Sigue practicando! 💪'}</p>
                     <div id="feedback"></div>
                 </div>
             `;
@@ -407,7 +407,7 @@
             feedbackElement.style.display = 'none';
             document.querySelector('.timer').style.display = 'none';
             
-            // Llamar a la funciÃ³n para enviar la puntuaciÃ³n
+            // Llamar a la función para enviar la puntuación
             enviarPuntuacion(score, totalQuestions);
         }
         
@@ -425,7 +425,7 @@
             button.addEventListener('click', () => {
                 currentTable = parseInt(button.getAttribute('data-table'));
                 
-                // Resaltar el botÃ³n seleccionado
+                // Resaltar el botón seleccionado
                 tableButtons.forEach(btn => btn.classList.remove('selected'));
                 button.classList.add('selected');
                 
