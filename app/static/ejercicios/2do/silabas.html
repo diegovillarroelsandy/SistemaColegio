@@ -107,15 +107,15 @@
         </div>
         
         <div class="hint" id="hint">
-            Arma la palabra correcta usando las sÃ­labas de abajo.
+            Arma la palabra correcta usando las sílabas de abajo.
         </div>
         
         <div class="word-display" id="wordDisplay">
-            <!-- Las sÃ­labas seleccionadas aparecerÃ¡n aquÃ­ -->
+            <!-- Las sílabas seleccionadas aparecerán aquí -->
         </div>
         
         <div class="syllable-bank" id="syllableBank">
-            <!-- Las sÃ­labas disponibles se generarÃ¡n aquÃ­ -->
+            <!-- Las sílabas disponibles se generarán aquí -->
         </div>
         
         <button class="btn btn-primary btn-check" id="checkBtn">Comprobar</button>
@@ -133,16 +133,16 @@
         let currentAnswer = '';
         let currentHint = '';
 
-        // Palabras y sus sÃ­labas
+        // Palabras y sus sílabas
         const words = [
             { word: 'casa', syllables: ['ca', 'sa'], hint: 'Lugar donde vives' },
             { word: 'mesa', syllables: ['me', 'sa'], hint: 'Mueble para comer' },
             { word: 'silla', syllables: ['si', 'lla'], hint: 'En ella te sientas' },
-            { word: 'libro', syllables: ['li', 'bro'], hint: 'Tiene pÃ¡ginas para leer' },
-            { word: 'lÃ¡piz', syllables: ['lÃ¡', 'piz'], hint: 'Con punta de grafito' },
-            { word: 'gato', syllables: ['ga', 'to'], hint: 'Animal que maÃºlla' },
+            { word: 'libro', syllables: ['li', 'bro'], hint: 'Tiene páginas para leer' },
+            { word: 'lápiz', syllables: ['lá', 'piz'], hint: 'Con punta de grafito' },
+            { word: 'gato', syllables: ['ga', 'to'], hint: 'Animal que maúlla' },
             { word: 'perro', syllables: ['pe', 'rro'], hint: 'Mejor amigo del hombre' },
-            { word: 'sol', syllables: ['sol'], hint: 'Brilla en el cielo de dÃ­a' }
+            { word: 'sol', syllables: ['sol'], hint: 'Brilla en el cielo de día' }
         ];
 
         // Elementos del DOM
@@ -186,13 +186,13 @@
                 // Juego terminado
                 wordDisplay.innerHTML = `
                     <div class="text-center w-100">
-                        <h3>Â¡Juego Terminado!</h3>
-                        <p>Tu puntuaciÃ³n final es: <strong>${score} / ${totalWords * 10}</strong></p>
-                        <p>Â¡Excelente trabajo! ðŸŽ‰</p>
+                        <h3>¡Juego Terminado!</h3>
+                        <p>Tu puntuación final es: <strong>${score} / ${totalWords * 10}</strong></p>
+                        <p>¡Excelente trabajo! 🎉</p>
                         <div id="feedback" class="feedback mt-3"></div>
                     </div>
                 `;
-                // Llamar a la funciÃ³n para enviar la puntuaciÃ³n
+                // Llamar a la función para enviar la puntuación
                 enviarPuntuacion(score, totalWords);
                 syllableBank.style.display = 'none';
                 checkButton.style.display = 'none';
@@ -212,10 +212,10 @@
             wordDisplay.innerHTML = '';
             syllableBank.innerHTML = '';
             
-            // Crear sÃ­labas desordenadas
+            // Crear sílabas desordenadas
             let syllables = [...current.syllables];
             
-            // AÃ±adir sÃ­labas adicionales para hacerlo mÃ¡s desafiante
+            // Añadir sílabas adicionales para hacerlo más desafiante
             const extraSyllables = ['ma', 'pa', 'lo', 'ni', 'tu', 'ra', 'co', 'mi'];
             while (syllables.length < 6) {
                 const randomSyllable = extraSyllables[Math.floor(Math.random() * extraSyllables.length)];
@@ -224,10 +224,10 @@
                 }
             }
             
-            // Mezclar sÃ­labas
+            // Mezclar sílabas
             shuffleArray(syllables);
             
-            // Mostrar sÃ­labas en el banco
+            // Mostrar sílabas en el banco
             syllables.forEach(syllable => {
                 const syllableElement = document.createElement('div');
                 syllableElement.className = 'syllable';
@@ -249,13 +249,13 @@
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
             
-            // Reiniciar sÃ­labas seleccionadas
+            // Reiniciar sílabas seleccionadas
             selectedSyllables = [];
         }
 
-        // Seleccionar una sÃ­laba
+        // Seleccionar una sílaba
         function selectSyllable(syllable, element) {
-            // Si la sÃ­laba ya estÃ¡ seleccionada, quitarla
+            // Si la sílaba ya está seleccionada, quitarla
             const index = selectedSyllables.indexOf(element);
             if (index > -1) {
                 element.classList.remove('selected');
@@ -264,13 +264,13 @@
                 return;
             }
             
-            // Si no estÃ¡ seleccionada, aÃ±adirla
+            // Si no está seleccionada, añadirla
             element.classList.add('selected');
             selectedSyllables.push(element);
             updateWordDisplay();
         }
 
-        // Actualizar la visualizaciÃ³n de la palabra
+        // Actualizar la visualización de la palabra
         function updateWordDisplay() {
             wordDisplay.innerHTML = '';
             selectedSyllables.forEach(syllable => {
@@ -286,21 +286,21 @@
             const userAnswer = selectedSyllables.map(s => s.textContent).join('');
             const correctAnswer = words[currentWord].word;
             
-            // Deshabilitar todas las sÃ­labas
+            // Deshabilitar todas las sílabas
             const syllables = document.querySelectorAll('.syllable');
             syllables.forEach(s => s.style.pointerEvents = 'none');
             
-            // Mostrar retroalimentaciÃ³n
+            // Mostrar retroalimentación
             if (userAnswer === correctAnswer) {
-                feedbackElement.textContent = 'Â¡Correcto! Â¡Buen trabajo!';
+                feedbackElement.textContent = '¡Correcto! ¡Buen trabajo!';
                 feedbackElement.className = 'feedback correct';
                 score += 10;
                 scoreElement.textContent = score;
             } else {
-                feedbackElement.textContent = `Â¡Casi! La palabra correcta es "${correctAnswer}".`;
+                feedbackElement.textContent = `¡Casi! La palabra correcta es "${correctAnswer}".`;
                 feedbackElement.className = 'feedback incorrect';
                 
-                // Resaltar las sÃ­labas correctas
+                // Resaltar las sílabas correctas
                 const correctSyllables = words[currentWord].syllables;
                 syllables.forEach(s => {
                     if (correctSyllables.includes(s.textContent)) {
@@ -313,9 +313,9 @@
             nextButton.style.display = 'block';
         }
 
-        // FunciÃ³n para enviar la puntuaciÃ³n al servidor
+        // Función para enviar la puntuación al servidor
         async function enviarPuntuacion(puntuacion, totalPreguntas) {
-            if (ejercicioCompletado) return; // Evitar envÃ­os mÃºltiples
+            if (ejercicioCompletado) return; // Evitar envíos múltiples
             
             try {
                 const response = await fetch('/estudiantes/guardar_puntuacion/' + ejercicioId, {
@@ -328,32 +328,32 @@
                         puntuacion: puntuacion,
                         total_preguntas: totalPreguntas
                     }),
-                    credentials: 'same-origin' // Importante para enviar la cookie de sesiÃ³n
+                    credentials: 'same-origin' // Importante para enviar la cookie de sesión
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Error al guardar la puntuaciÃ³n: ' + response.statusText);
+                    throw new Error('Error al guardar la puntuación: ' + response.statusText);
                 }
                 
                 const data = await response.json();
-                console.log('PuntuaciÃ³n guardada:', data);
+                console.log('Puntuación guardada:', data);
                 ejercicioCompletado = true;
                 
-                // Mostrar mensaje de Ã©xito
+                // Mostrar mensaje de éxito
                 const feedbackElement = document.getElementById('feedback');
-                feedbackElement.textContent = 'Â¡Ejercicio completado! Tu puntuaciÃ³n ha sido guardada.';
+                feedbackElement.textContent = '¡Ejercicio completado! Tu puntuación ha sido guardada.';
                 feedbackElement.className = 'feedback correct';
                 
-                // Mostrar botÃ³n para volver a la lista de ejercicios
+                // Mostrar botón para volver a la lista de ejercicios
                 const volverBtn = document.createElement('a');
                 volverBtn.href = '/estudiantes/ejercicios';
                 volverBtn.className = 'btn btn-primary w-100 mt-3';
                 volverBtn.textContent = 'Volver a la lista de ejercicios';
                 wordDisplay.querySelector('div').appendChild(volverBtn);
                 
-                // TambiÃ©n redirigir automÃ¡ticamente despuÃ©s de 3 segundos
+                // También redirigir automáticamente después de 3 segundos
                 setTimeout(() => {
-                    window.close();
+                    window.location.href = '/estudiantes/ejercicios';
                 }, 3000);
                 
             } catch (error) {
@@ -361,7 +361,7 @@
                 const feedbackElement = document.getElementById('feedback') || wordDisplay.querySelector('div');
                 feedbackElement.innerHTML += `
                     <div class="alert alert-danger mt-3">
-                        Error al guardar la puntuaciÃ³n: ${error.message}
+                        Error al guardar la puntuación: ${error.message}
                         <button class="btn btn-warning btn-sm ms-2" onclick="enviarPuntuacion(${puntuacion}, ${totalPreguntas})">
                             Reintentar
                         </button>
