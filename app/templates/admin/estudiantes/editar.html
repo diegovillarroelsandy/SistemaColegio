@@ -54,15 +54,14 @@
                                         {{ estudiante.grado.nombre }}
                                         <div class="mt-2">
                                             <label class="form-label">Docentes Asignados:</label>
-                                            {% set docentes = Docente.query.filter_by(grado_id=estudiante.grado_id).all() %}
-                                            {% if docentes %}
+                                            {% if estudiante.grado and estudiante.grado.docentes %}
                                                 <ul class="list-unstyled">
-                                                    {% for docente in docentes %}
+                                                    {% for docente in estudiante.grado.docentes %}
                                                     <li>{{ docente.usuario.nombre_completo }}</li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                Sin docentes asignados
+                                                <span class="text-muted">Sin docentes asignados</span>
                                             {% endif %}
                                         </div>
                                     {% else %}

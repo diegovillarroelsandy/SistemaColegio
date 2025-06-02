@@ -19,8 +19,8 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Título</th>
-                                <th>Grado</th>
-                                {# <th>Docente</th> #}
+                                <th>Grado Destinado</th>
+                                <th>Creado por</th>
                                 <th>Fecha de Creación</th>
                                 <th>Acciones</th>
                             </tr>
@@ -37,15 +37,13 @@
                                         Sin asignar
                                     {% endif %}
                                 </td>
-                                {#
                                 <td>
                                     {% if ejercicio.docente %}
                                         {{ ejercicio.docente.usuario.nombre_completo }}
                                     {% else %}
-                                        Sin docente asignado
+                                        Sistema
                                     {% endif %}
                                 </td>
-                                #}
                                 <td>{{ ejercicio.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</td>
                                 <td>
                                     <div class="btn-group">

@@ -428,6 +428,84 @@ def eliminar_grado(id):
     return redirect(url_for('admin.grados'))
 
 # ============================================
+# Rutas para la gestión de notas
+# ============================================
+
+@admin_bp.route('/notas')
+@login_required
+@admin_required
+def notas():
+    # Obtener todas las respuestas con información de estudiantes y ejercicios
+    respuestas = db.session.query(
+        RespuestaEstudiante,
+        Estudiante,
+        Ejercicio,
+        Usuario,
+        Grado,
+        Docente
+    )\
+    .join(Estudiante, RespuestaEstudiante.estudiante_id == Estudiante.id)\
+    .join(Usuario, Estudiante.usuario_id == Usuario.id)\
+    .join(Ejercicio, RespuestaEstudiante.ejercicio_id == Ejercicio.id)\
+    .join(Grado, Estudiante.grado_id == Grado.id)\
+    .outerjoin(Docente, Ejercicio.docente_id == Docente.id)\
+    .order_by(\
+        Grado.nombre.asc(),\
+        Usuario.nombre_completo.asc(),\
+        Ejercicio.titulo.asc()\
+    )\
+    .all()
+    
+    # Agrupar por grado, estudiante y ejercicio
+    datos_agrupados = {}
+    for respuesta, estudiante, ejercicio, usuario, grado, docente in respuestas:
+        if grado.nombre not in datos_agrupados:
+            datos_agrupados[grado.nombre] = {
+                'id': grado.id,
+                'estudiantes': {}
+            }
+        
+        if estudiante.id not in datos_agrupados[grado.nombre]['estudiantes']:
+            datos_agrupados[grado.nombre]['estudiantes'][estudiante.id] = {
+                'id': estudiante.id,
+                'nombre': usuario.nombre_completo,
+                'ejercicios': {},
+                'promedio': 0,
+                'total_puntos': 0,
+                'total_ejercicios': 0
+            }
+        
+        # Agregar ejercicio al estudiante
+        datos_agrupados[grado.nombre]['estudiantes'][estudiante.id]['ejercicios'][ejercicio.id] = {
+            'titulo': ejercicio.titulo,
+            'puntuacion': respuesta.valor if respuesta.valor is not None else 0,
+            'fecha': respuesta.fecha_respuesta.strftime('%d/%m/%Y %H:%M') if respuesta.fecha_respuesta else 'No registrada',
+            'docente': f"{docente.usuario.nombre_completo}" if docente and hasattr(docente, 'usuario') else 'Sin docente'
+        }
+        
+        # Actualizar estadísticas del estudiante
+        if respuesta.valor is not None:
+            datos_agrupados[grado.nombre]['estudiantes'][estudiante.id]['total_puntos'] += respuesta.valor
+            datos_agrupados[grado.nombre]['estudiantes'][estudiante.id]['total_ejercicios'] += 1
+    
+    # Calcular promedios
+    for grado in datos_agrupados.values():
+        for estudiante in grado['estudiantes'].values():
+            if estudiante['total_ejercicios'] > 0:
+                estudiante['promedio'] = round(estudiante['total_puntos'] / estudiante['total_ejercicios'], 2)
+    
+    # Obtener totales
+    total_estudiantes = sum(len(grado['estudiantes']) for grado in datos_agrupados.values())
+    total_ejercicios = db.session.query(Ejercicio).count()
+    total_grados = len(datos_agrupados)
+    
+    return render_template('admin/notas/index.html',
+                         datos_agrupados=datos_agrupados,
+                         total_estudiantes=total_estudiantes,
+                         total_ejercicios=total_ejercicios,
+                         total_grados=total_grados)
+
+# ============================================
 # Rutas para la gestión de ejercicios
 # ============================================
 
@@ -463,6 +541,12 @@ def nuevo_ejercicio():
             if not all([titulo, tipo_interaccion, grado_destinado_id, docente_id]):
                 flash('Los campos marcados con * son obligatorios', 'error')
                 return redirect(request.url)
+                
+            # Validar que se haya seleccionado un ejercicio existente o se haya subido un archivo
+            if not ejercicio_existente or ejercicio_existente == 'nuevo':
+                if 'archivo' not in request.files or not request.files['archivo'].filename:
+                    flash('Debes seleccionar un ejercicio existente o subir un archivo', 'error')
+                    return redirect(request.url)
             
             # Verificar si el grado existe
             grado = Grado.query.get(grado_destinado_id)

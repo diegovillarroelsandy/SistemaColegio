@@ -32,39 +32,200 @@
 {% endblock %}
 
 {% block admin_content %}
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Notas Asignadas</h2>
-    <a href="{{ url_for('docentes.agregar_nota') }}" class="btn btn-primary">
-      <i class="fas fa-plus"></i> Agregar nueva nota
-    </a>
-  </div>
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5>Resumen de Calificaciones</h5>
+                        <a href="{{ url_for('docentes.agregar_nota') }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i> Agregar Nota Manual
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+                            <div class="card">
+                                <div class="card-body p-3">
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <div class="numbers">
+                                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Estudiantes</p>
+                                                <h5 class="font-weight-bolder">
+                                                    {{ total_estudiantes }}
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
+                                                <i class="fas fa-users text-lg opacity-10"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+                            <div class="card">
+                                <div class="card-body p-3">
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <div class="numbers">
+                                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Ejercicios</p>
+                                                <h5 class="font-weight-bolder">
+                                                    {{ total_ejercicios }}
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
+                                                <i class="fas fa-tasks text-lg opacity-10"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <div class="table-responsive shadow rounded">
-    <table class="table table-hover table-bordered align-middle">
-      <thead class="table-dark text-center">
-        <tr>
-          <th>Estudiante</th>
-          <th>Grado</th>
-          <th>Nota</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for nota in notas %}
-        <tr>
-          <td>{{ nota.estudiante.usuario.correo }}</td>
-          <td>{{ nota.ejercicio.grado_destinado.nombre }}</td>
-          <td class="text-center">{{ nota.valor }}</td>
-          <td class="text-center">
-            <a href="{{ url_for('docentes.editar_nota', nota_id=nota.id) }}" class="btn btn-sm btn-warning">
-              <i class="fas fa-edit"></i> Editar
-            </a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <h5>Detalle de Calificaciones por Estudiante</h5>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estudiante</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Ejercicios Completados</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Promedio</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Detalle</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for estudiante in estudiantes %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ estudiante.nombre }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="progress-wrapper w-75 mx-auto">
+                                            <div class="progress-info">
+                                                <div class="progress-percentage">
+                                                    <span class="text-xs font-weight-bold">{{ estudiante.ejercicios_completados }} de {{ total_ejercicios }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="progress">
+                                                {% set porcentaje = (estudiante.ejercicios_completados / total_ejercicios * 100) if total_ejercicios > 0 else 0 %}
+                                                <div class="progress-bar bg-gradient-{{ 'success' if porcentaje >= 70 else 'warning' }}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ porcentaje }}%;" 
+                                                     aria-valuenow="{{ porcentaje }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="badge badge-sm bg-gradient-{{ 'success' if estudiante.promedio >= 70 else 'warning' }}">
+                                            {{ "%.2f"|format(estudiante.promedio) }}%
+                                        </span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <button class="btn btn-link text-secondary mb-0" 
+                                                type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#detalle-{{ estudiante.id }}" 
+                                                aria-expanded="false" 
+                                                aria-controls="detalle-{{ estudiante.id }}">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="p-0">
+                                        <div class="collapse" id="detalle-{{ estudiante.id }}">
+                                            <div class="card card-body">
+                                                <h6 class="mb-3">Detalle de Ejercicios</h6>
+                                                <div class="table-responsive">
+                                                    <table class="table align-items-center">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Ejercicio</th>
+                                                                <th class="text-center">Puntuación</th>
+                                                                <th class="text-center">Estado</th>
+                                                                <th class="text-center">Fecha</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for ejercicio_id, ejercicio in estudiante.ejercicios.items() %}
+                                                            <tr>
+                                                                <td>{{ ejercicio.titulo }}</td>
+                                                                <td class="text-center">{{ "%.2f"|format(ejercicio.puntuacion) }}%</td>
+                                                                <td class="text-center">
+                                                                    <span class="badge badge-sm bg-{{ 'success' if ejercicio.correcto else 'danger' }}">
+                                                                        {{ 'Aprobado' if ejercicio.correcto else 'Reprobado' }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-center">{{ ejercicio.fecha }}</td>
+                                                            </tr>
+                                                            {% else %}
+                                                            <tr>
+                                                                <td colspan="4" class="text-center">No hay ejercicios registrados</td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">No hay estudiantes registrados</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Incluir SweetAlert2 para alertas bonitas -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <script>
+                Swal.fire({
+                    icon: '{{ "success" if category == "success" else "error" }}',
+                    title: '{{ "¡Éxito!" if category == "success" else "¡Error!" }}',
+                    text: '{{ message }}',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#5e72e4'
+                });
+            </script>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
 {% endblock %}

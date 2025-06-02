@@ -1,8 +1,8 @@
-"""initial migration
+"""Descripción de los cambios
 
-Revision ID: e3283889d3cf
-Revises: 4e1b5f1a59a9
-Create Date: 2025-05-28 08:39:32.963699
+Revision ID: 6bbb895740db
+Revises: 
+Create Date: 2025-06-02 08:07:51.293091
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e3283889d3cf'
-down_revision = '4e1b5f1a59a9'
+revision = '6bbb895740db'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -109,10 +109,10 @@ def upgrade():
     sa.Column('titulo', sa.String(length=100), nullable=True),
     sa.Column('enunciado', sa.Text(), nullable=False),
     sa.Column('tipo_interaccion', sa.String(length=50), nullable=True),
+    sa.Column('archivo_url', sa.String(length=255), nullable=True),
     sa.Column('grado_destinado_id', sa.Integer(), nullable=True),
     sa.Column('docente_id', sa.Integer(), nullable=True),
     sa.Column('fecha_creacion', sa.DateTime(), nullable=True),
-    sa.Column('archivo_url', sa.String(length=255), nullable=True),
     sa.ForeignKeyConstraint(['docente_id'], ['docentes.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['grado_destinado_id'], ['grados.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')

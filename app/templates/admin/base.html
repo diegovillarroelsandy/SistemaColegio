@@ -486,6 +486,15 @@
               <span>Ejercicios</span>
             </a>
             </li>
+            <li>
+              <a
+                href="{{ url_for('admin.notas') }}"
+                class="sidebar-link {% if request.endpoint == 'admin.notas' %}active{% endif %}"
+              >
+                <i class="fas fa-clipboard-check"></i>
+                <span>Notas</span>
+              </a>
+            </li>
           </ul>
         </div>
       </nav>

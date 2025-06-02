@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historia Universal - 5to Grado</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -207,13 +207,13 @@
         
         <div class="question-container">
             <span class="time-period" id="timePeriodBadge">Edad Antigua</span>
-            <img id="questionImage" class="question-image" style="display: none;" alt="Imagen histÃ³rica">
+            <img id="questionImage" class="question-image" style="display: none;" alt="Imagen histórica">
             <p class="question" id="question">Cargando preguntas de historia...</p>
             <p class="hint" id="hint"></p>
         </div>
         
         <div class="options" id="options">
-            <!-- Las opciones se generarÃ¡n con JavaScript -->
+            <!-- Las opciones se generarán con JavaScript -->
         </div>
         
         <div class="feedback" id="feedback"></div>
@@ -254,7 +254,7 @@
                 opciones: ["Imperio Inca", "Imperio Azteca", "Imperio Maya", "Imperio Olmeca"],
                 respuesta: 1,
                 explicacion: "El Imperio Azteca, con su capital en Tenochtitlán, era la potencia dominante en México cuando llegaron los españoles en el siglo XVI.",
-                periodo: "AmÃ©rica Precolombina"
+                periodo: "América Precolombina"
             },
             {
                 pregunta: "¿Qué evento marcó el inicio de la Edad Media?",
@@ -294,7 +294,7 @@
                 opciones: ["Mayas", "Aztecas", "Incas", "Olmecas"],
                 respuesta: 2,
                 explicacion: "Machu Picchu fue construido por los incas en el siglo XV, probablemente como finca de descanso del emperador Pachacútec.",
-                periodo: "AmÃ©rica Precolombina"
+                periodo: "América Precolombina"
             },
             {
                 pregunta: "¿Quién pintó la Mona Lisa?",
@@ -355,7 +355,7 @@
             timePeriodElement.textContent = question.periodo;
             timePeriodTitle.textContent = question.periodo;
             
-            // Mostrar imagen si estÃ¡ disponible
+            // Mostrar imagen si está disponible
             if (question.imagen) {
                 questionImage.src = question.imagen;
                 questionImage.style.display = 'block';
@@ -386,10 +386,10 @@
             // Actualizar contador de preguntas
             currentElement.textContent = index + 1;
             
-            // Ocultar botÃ³n de siguiente
+            // Ocultar botón de siguiente
             nextButton.style.display = 'none';
             
-            // Limpiar retroalimentaciÃ³n
+            // Limpiar retroalimentación
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
         }
@@ -410,7 +410,7 @@
             // Verificar si la respuesta es correcta
             if (selectedIndex === currentCorrectAnswer) {
                 options[selectedIndex].classList.add('correct');
-                feedbackElement.textContent = 'Â¡Correcto! ' + currentQuestionObj.explicacion;
+                feedbackElement.textContent = '¡Correcto! ' + currentQuestionObj.explicacion;
                 feedbackElement.className = 'feedback correct-feedback';
                 score += 10;
                 scoreElement.textContent = score;
@@ -432,7 +432,7 @@
             // Mostrar pista
             hintElement.textContent = currentQuestionObj.explicacion;
             
-            // Mostrar botÃ³n de siguiente
+            // Mostrar botón de siguiente
             nextButton.style.display = 'block';
         }
         
@@ -446,9 +446,9 @@
             }
         };
         
-        // FunciÃ³n para enviar la puntuaciÃ³n al servidor
+        // Función para enviar la puntuación al servidor
         async function enviarPuntuacion(puntuacion, totalPreguntas) {
-            if (ejercicioCompletado) return; // Evitar envÃ­os mÃºltiples
+            if (ejercicioCompletado) return; // Evitar envíos múltiples
             
             try {
                 const response = await fetch('/estudiantes/guardar_puntuacion/' + ejercicioId, {
@@ -461,18 +461,18 @@
                         puntuacion: puntuacion,
                         total_preguntas: totalPreguntas
                     }),
-                    credentials: 'same-origin' // Importante para enviar la cookie de sesiÃ³n
+                    credentials: 'same-origin' // Importante para enviar la cookie de sesión
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Error al guardar la puntuaciÃ³n: ' + response.statusText);
+                    throw new Error('Error al guardar la puntuación: ' + response.statusText);
                 }
                 
                 const data = await response.json();
-                console.log('PuntuaciÃ³n guardada:', data);
+                console.log('Puntuación guardada:', data);
                 ejercicioCompletado = true;
                 
-                // Mostrar mensaje de Ã©xito
+                // Mostrar mensaje de éxito
                 const successDiv = document.createElement('div');
                 successDiv.className = 'alert alert-success mt-4';
                 successDiv.style.maxWidth = '600px';
@@ -483,10 +483,10 @@
                 successDiv.style.backgroundColor = '#e8f5e9';
                 successDiv.style.color = '#2e7d32';
                 successDiv.style.fontWeight = 'bold';
-                successDiv.textContent = 'Â¡Ejercicio completado! Tu puntuaciÃ³n ha sido guardada.';
+                successDiv.textContent = '¡Ejercicio completado! Tu puntuación ha sido guardada.';
                 document.querySelector('.game-container').appendChild(successDiv);
                 
-                // Mostrar botÃ³n para volver a la lista de ejercicios
+                // Mostrar botón para volver a la lista de ejercicios
                 const volverBtn = document.createElement('a');
                 volverBtn.href = '/estudiantes/ejercicios';
                 volverBtn.className = 'btn btn-primary mt-3';
@@ -499,9 +499,9 @@
                 volverBtn.textContent = 'Volver a la lista de ejercicios';
                 document.querySelector('.game-container').appendChild(volverBtn);
                 
-                // TambiÃ©n redirigir automÃ¡ticamente despuÃ©s de 5 segundos
+                // También redirigir automáticamente después de 5 segundos
                 setTimeout(() => {
-                    window.close();
+                    window.location.href = '/estudiantes/ejercicios';
                 }, 5000);
                 
             } catch (error) {
@@ -516,7 +516,7 @@
                 errorDiv.style.color = '#c62828';
                 errorDiv.style.border = '2px solid #ef9a9a';
                 errorDiv.innerHTML = `
-                    Error al guardar la puntuaciÃ³n: ${error.message}
+                    Error al guardar la puntuación: ${error.message}
                     <button class="btn btn-warning btn-sm ms-2" 
                             onclick="enviarPuntuacion(${puntuacion}, ${totalPreguntas})"
                             style="margin-left: 10px; padding: 5px 10px; border-radius: 5px; background-color: #fff8e1; border: 1px solid #d7ccc8; cursor: pointer;">
@@ -545,20 +545,20 @@
             let emoji = '';
             
             if (result >= 80) {
-                message = 'Â¡Excelente! Eres un verdadero experto en historia.';
-                emoji = 'ðŸ†';
+                message = '¡Excelente! Eres un verdadero experto en historia.';
+                emoji = '🏆';
             } else if (result >= 60) {
-                message = 'Â¡Buen trabajo! Sigue aprendiendo sobre la historia.';
-                emoji = 'ðŸ“š';
+                message = '¡Buen trabajo! Sigue aprendiendo sobre la historia.';
+                emoji = '📚';
             } else {
-                message = 'Â¡Sigue practicando! La historia es fascinante.';
-                emoji = 'ðŸ”';
+                message = '¡Sigue practicando! La historia es fascinante.';
+                emoji = '🔍';
             }
             
             resultContainer.innerHTML = `
-                <h2>Â¡Juego Terminado! ${emoji}</h2>
+                <h2>¡Juego Terminado! ${emoji}</h2>
                 <div style="font-size: 1.5em; margin: 20px 0;">
-                    <div>Tu puntuaciÃ³n:</div>
+                    <div>Tu puntuación:</div>
                     <div style="font-size: 2em; font-weight: bold; color: #5d4037;">${score} / ${totalQuestions * 10}</div>
                     <div>${result}% de aciertos</div>
                 </div>
@@ -577,7 +577,7 @@
             document.querySelector('.game-container').innerHTML = '';
             document.querySelector('.game-container').appendChild(resultContainer);
             
-            // Llamar a la funciÃ³n para enviar la puntuaciÃ³n
+            // Llamar a la función para enviar la puntuación
             enviarPuntuacion(score, totalQuestions);
             
             // Efecto de confeti al finalizar si el puntaje es alto
