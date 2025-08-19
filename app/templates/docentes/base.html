@@ -384,6 +384,142 @@
             {% endif %}
         {% endwith %}
     </script>
+
+    <!-- Chatbot Bubble Widget -->
+    <style>
+      #chatbot-bubble {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+      }
+      #chatbot-window {
+        display: none;
+        width: 350px;
+        height: 400px;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+        padding: 15px;
+        margin-bottom: 10px;
+        overflow-y: auto;
+      }
+      #chatbot-header {
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+      #chatbot-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 18px;
+      }
+    </style>
+    <div id="chatbot-bubble">
+      <button id="open-chatbot" class="btn btn-primary rounded-circle" style="width:60px;height:60px;font-size:28px;">
+        <i class="fas fa-comments"></i>
+      </button>
+      <div id="chatbot-window">
+        <div id="chatbot-header">
+          Chatbot Escolar
+          <span id="chatbot-close">&times;</span>
+        </div>
+        <div style="font-size:14px; margin-bottom:10px;">
+          <strong>Preguntas frecuentes:</strong>
+          <ul style="padding-left:18px;">
+            <li><a href="#" class="faq-question">¿Cómo consulto mis notas?</a></li>
+            <li><a href="#" class="faq-question">¿Cómo subo un ejercicio?</a></li>
+            <li><a href="#" class="faq-question">¿Cómo cambio mi contraseña?</a></li>
+            <li><a href="#" class="faq-question">¿Cómo veo los contenidos de mi grado?</a></li>
+            <li><a href="#" class="faq-question">¿Qué roles existen en el sistema?</a></li>
+            <li><a href="#" class="faq-question">¿Cómo registro un nuevo usuario?</a></li>
+          </ul>
+        </div>
+        <div id="chatbot-messages" style="height:220px;overflow-y:auto;margin-bottom:10px;"></div>
+        <form id="chatbot-form" autocomplete="off">
+          <div class="input-group">
+            <input type="text" id="chatbot-input" class="form-control" placeholder="Escribe tu mensaje..." required>
+            <button type="submit" class="btn btn-success">Enviar</button>
+          </div>
+        </form>
+      <div id="chatbot-loading" style="display:none;text-align:center;margin-top:10px;">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Esperando respuesta...</span>
+      </div>
+      </div>
+    </div>
+    <script>
+      const chatbotBubble = document.getElementById('chatbot-bubble');
+      const openChatbotBtn = document.getElementById('open-chatbot');
+      const chatbotWindow = document.getElementById('chatbot-window');
+      const chatbotClose = document.getElementById('chatbot-close');
+      const chatbotForm = document.getElementById('chatbot-form');
+      const chatbotInput = document.getElementById('chatbot-input');
+      const chatbotMessages = document.getElementById('chatbot-messages');
+
+      openChatbotBtn.onclick = function() {
+        chatbotWindow.style.display = 'block';
+        openChatbotBtn.style.display = 'none';
+      };
+      chatbotClose.onclick = function() {
+        chatbotWindow.style.display = 'none';
+        openChatbotBtn.style.display = 'inline-block';
+      };
+
+      function appendChatbotMessage(sender, text) {
+        const msgDiv = document.createElement('div');
+        // Permitir saltos de línea y formato básico
+        const formatted = text.replace(/\n/g, '<br>');
+        msgDiv.innerHTML = `<strong>${sender}:</strong> <span style='white-space:pre-line;'>${formatted}</span>`;
+        msgDiv.style.marginBottom = '8px';
+        msgDiv.style.padding = '6px 10px';
+        msgDiv.style.borderRadius = '8px';
+        msgDiv.style.background = sender === 'Tú' ? '#e9f7ef' : '#f4f4f4';
+        chatbotMessages.appendChild(msgDiv);
+        // Mostrar el inicio del nuevo mensaje (primera línea)
+        setTimeout(() => {
+          chatbotMessages.scrollTop = chatbotMessages.scrollHeight - msgDiv.offsetHeight;
+        }, 50);
+      }
+
+      chatbotForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const message = chatbotInput.value;
+        appendChatbotMessage('Tú', message);
+        chatbotInput.value = '';
+        chatbotInput.disabled = true;
+        document.getElementById('chatbot-loading').style.display = 'block';
+        try {
+          const res = await fetch('/chatbot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+          });
+          const data = await res.json();
+          if (data.reply) {
+            appendChatbotMessage('Chatbot', data.reply);
+          } else {
+            appendChatbotMessage('Chatbot', 'Error: ' + (data.error || 'Sin respuesta.'));
+          }
+        } catch (err) {
+          appendChatbotMessage('Chatbot', 'Error de conexión.');
+        }
+        document.getElementById('chatbot-loading').style.display = 'none';
+        chatbotInput.disabled = false;
+        chatbotInput.focus();
+      });
+
+      // FAQ click handler
+      document.querySelectorAll('.faq-question').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+          e.preventDefault();
+          chatbotInput.value = el.textContent;
+          chatbotForm.dispatchEvent(new Event('submit'));
+        });
+      });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
