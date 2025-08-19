@@ -43,5 +43,8 @@ def create_app(config_name=None):
     app.register_blueprint(docentes_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(estudiantes_bp)
+    # Registrar el blueprint del chatbot
+    from .chatbot import chatbot_bp
+    app.register_blueprint(chatbot_bp)
     
     return app

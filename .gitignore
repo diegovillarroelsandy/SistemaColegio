@@ -1,3 +1,17 @@
 __pycache__/
 *.pyc
 venv/
+
+# Entornos y variables
+.env
+.env.*
+
+# Bases de datos locales / artefactos
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Sistemas
+.DS_Store
+Thumbs.db

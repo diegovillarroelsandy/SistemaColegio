@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Chatbot Escolar</h2>
+  <div id="chat-window" style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px;"></div>
+  <form id="chat-form" autocomplete="off">
+    <div class="input-group">
+      <input type="text" id="user-input" class="form-control" placeholder="Escribe tu mensaje..." required>
+      <button type="submit" class="btn btn-primary">Enviar</button>
+    </div>
+  </form>
+</div>
+<script>
+const chatWindow = document.getElementById('chat-window');
+const chatForm = document.getElementById('chat-form');
+const userInput = document.getElementById('user-input');
+
+function appendMessage(sender, text) {
+  const msgDiv = document.createElement('div');
+  msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatWindow.appendChild(msgDiv);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+chatForm.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const message = userInput.value;
+  appendMessage('Tú', message);
+  userInput.value = '';
+  try {
+    const res = await fetch('/chatbot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    const data = await res.json();
+    if (data.reply) {
+      appendMessage('Chatbot', data.reply);
+    } else {
+      appendMessage('Chatbot', 'Error: ' + (data.error || 'Sin respuesta.'));
+    }
+  } catch (err) {
+    appendMessage('Chatbot', 'Error de conexión.');
+  }
+});
+</script>
+{% endblock %}
