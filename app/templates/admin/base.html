@@ -18,15 +18,16 @@
     />
     <style>
       :root {
-        --primary-color: #2c3e50;
-        --primary-hover: #34495e;
+        --primary-color: #3b82f6;
+        --primary-hover: #2563eb;
         --sidebar-width: 250px;
         --transition-speed: 0.3s;
-        --sidebar-bg: white;
-        --sidebar-text: #444;
-        --sidebar-hover: #f8f9fa;
-        --sidebar-border: #eee;
-        --content-bg: #f8f9fa;
+        --sidebar-bg: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+        --sidebar-text: #e5e7eb;
+        --sidebar-hover: rgba(255, 255, 255, 0.08);
+        --sidebar-border: rgba(255, 255, 255, 0.1);
+        --content-bg: #f0f4ff;
+        --navbar-bg: #eaf0ff;
         --card-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         --border-radius: 10px;
         --loading-bg: rgba(255, 255, 255, 0.9);
@@ -97,12 +98,12 @@
       .sidebar-header h5 {
         margin: 0;
         font-size: 1.1rem;
-        color: var(--sidebar-text);
+        color: #ffffff;
         font-weight: 600;
       }
 
       .sidebar-header small {
-        color: #666;
+        color: #cbd5e1;
         font-size: 0.85rem;
       }
 
@@ -121,7 +122,7 @@
 
       .sidebar-link:hover {
         background: var(--sidebar-hover);
-        color: var(--primary-color);
+        color: #ffffff;
         transform: translateX(5px);
       }
 
@@ -130,7 +131,7 @@
         width: 20px;
         text-align: center;
         font-size: 1.1rem;
-        color: var(--primary-color);
+        color: #93c5fd;
         transition: transform var(--transition-speed);
       }
 
@@ -139,10 +140,10 @@
       }
 
       .sidebar-link.active {
-        background: var(--sidebar-hover);
-        color: var(--primary-color);
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
         font-weight: 500;
-        box-shadow: inset 4px 0 0 var(--primary-color);
+        box-shadow: inset 4px 0 0 #60a5fa;
       }
 
       /* Sidebar Navigation */
@@ -240,7 +241,7 @@
 
       .navbar {
         padding: 0.5rem 1rem;
-        background: white;
+        background: var(--navbar-bg);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         margin-bottom: 2rem;
         position: relative;
@@ -403,6 +404,67 @@
       .theme-switcher i {
         color: var(--primary-color);
       }
+
+      /* Icon buttons in navbar */
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        background: transparent;
+        border: 1px solid transparent;
+        padding: 0;
+      }
+      .icon-btn:hover {
+        background: var(--sidebar-hover);
+      }
+      .navbar .dropdown-toggle::after { display: none; }
+      .navbar .dropdown .btn.icon-btn { position: relative; }
+      .navbar .dropdown-menu {
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+      }
+      .navbar .dropdown-item i { width: 18px; }
+      .navbar .notification-badge { top: -4px; right: -4px; }
+
+      /* Stats cards */
+      .card-stat {
+        border: none;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+      }
+      .card-stat:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      }
+      .card-stat .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(76, 110, 245, 0.1);
+        color: #4c6ef5;
+      }
+      .card-stat .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+      }
+      .card-stat .stat-label {
+        margin: 0;
+        color: #6c757d;
+      }
+      .card-stat.stat-primary .stat-icon { background: rgba(76, 110, 245, 0.1); color: #4c6ef5; }
+      .card-stat.stat-success .stat-icon { background: rgba(25, 135, 84, 0.1); color: #198754; }
+      .card-stat.stat-info .stat-icon { background: rgba(13, 202, 240, 0.1); color: #0dcaf0; }
+      .card-stat.stat-warning .stat-icon { background: rgba(255, 193, 7, 0.15); color: #e0a800; }
     </style>
   </head>
   <body>
@@ -429,7 +491,15 @@
               >
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
-                <span class="notification-badge">3</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="{{ url_for('admin.perfil') }}"
+                class="sidebar-link {% if request.endpoint == 'admin.perfil' %}active{% endif %}"
+              >
+                <i class="fas fa-user"></i>
+                <span>Perfil</span>
               </a>
             </li>
           <li>
@@ -502,68 +572,57 @@
       <!-- Page Content -->
       <div id="content" class="container-fluid fade-in">
         <nav class="navbar">
-          <div class="d-flex justify-content-between align-items-center">
-            <button id="sidebar-toggle" class="btn btn-link text-primary">
+          <div class="d-flex justify-content-between align-items-center w-100">
+            <button id="sidebar-toggle" class="btn icon-btn" aria-label="Alternar menú">
               <i class="fas fa-bars"></i>
             </button>
-            <div class="d-flex align-items-center">
-              <div class="dropdown me-3">
+            <div class="d-flex align-items-center gap-2">
+              <div class="dropdown me-1">
                 <button
-                  class="btn btn-link text-primary dropdown-toggle"
+                  class="btn icon-btn dropdown-toggle"
                   type="button"
                   id="notificationsDropdown"
                   data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label="Notificaciones"
                 >
                   <i class="fas fa-bell"></i>
                   <span class="notification-badge">5</span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
                   <li>
-                    <a class="dropdown-item" href="#"
-                      ><i class="fas fa-check-circle me-2"></i> Notificación
-                      1</a
-                    >
+                    <a class="dropdown-item" href="#"><i class="fas fa-check-circle me-2"></i> Notificación 1</a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#"
-                      ><i class="fas fa-check-circle me-2"></i> Notificación
-                      2</a
-                    >
+                    <a class="dropdown-item" href="#"><i class="fas fa-check-circle me-2"></i> Notificación 2</a>
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <a class="dropdown-item" href="#"
-                      ><i class="fas fa-bell-slash me-2"></i> Desactivar
-                      notificaciones</a
-                    >
+                    <a class="dropdown-item" href="#"><i class="fas fa-bell-slash me-2"></i> Desactivar notificaciones</a>
                   </li>
                 </ul>
               </div>
               <div class="dropdown">
                 <button
-                  class="btn btn-link text-primary dropdown-toggle"
+                  class="btn icon-btn dropdown-toggle"
                   type="button"
                   id="userDropdown"
                   data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label="Cuenta"
                 >
                   <i class="fas fa-user-circle"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   <li>
-                    <a class="dropdown-item" href="#"
-                      ><i class="fas fa-user me-2"></i> Perfil</a
-                    >
+                    <a class="dropdown-item" href="{{ url_for('admin.perfil') }}"><i class="fas fa-user me-2"></i> Perfil</a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#"
-                      ><i class="fas fa-cog me-2"></i> Configuración</a
-                    >
+                    <a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Configuración</a>
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <a class="dropdown-item" href="{{ url_for('auth.logout') }}"
-                      ><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a
-                    >
+                    <a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión</a>
                   </li>
                 </ul>
               </div>

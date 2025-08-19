@@ -1,4 +1,6 @@
-{% extends "admin/base.html" %} {% block admin_content %}
+{% extends "admin/base.html" %}
+{% block page_title %}Dashboard{% endblock %}
+{% block admin_content %}
 <div class="row">
   <div class="col-12">
     <div class="card">
@@ -15,46 +17,50 @@
 <div class="row">
   <!-- Estadísticas principales -->
   <div class="col-md-3 mb-4">
-    <div class="card bg-primary text-white">
-      <div class="card-body">
-        <h5 class="card-title mb-3">
-          <i class="fas fa-users me-2"></i>Total Usuarios
-        </h5>
-        <h2 class="display-4 mb-3">{{ usuarios_total }}</h2>
-        <p class="card-text">Usuarios registrados en el sistema</p>
+    <div class="card card-stat stat-primary">
+      <div class="card-body d-flex align-items-center justify-content-between">
+        <div>
+          <p class="stat-label">Total Usuarios</p>
+          <p class="stat-value">{{ usuarios_total }}</p>
+          <small class="text-muted">Usuarios registrados en el sistema</small>
+        </div>
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
       </div>
     </div>
   </div>
   <div class="col-md-3 mb-4">
-    <div class="card bg-success text-white">
-      <div class="card-body">
-        <h5 class="card-title mb-3">
-          <i class="fas fa-user-graduate me-2"></i>Estudiantes
-        </h5>
-        <h2 class="display-4 mb-3">{{ estudiantes_total }}</h2>
-        <p class="card-text">Estudiantes activos en el sistema</p>
+    <div class="card card-stat stat-success">
+      <div class="card-body d-flex align-items-center justify-content-between">
+        <div>
+          <p class="stat-label">Estudiantes</p>
+          <p class="stat-value">{{ estudiantes_total }}</p>
+          <small class="text-muted">Estudiantes activos en el sistema</small>
+        </div>
+        <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
       </div>
     </div>
   </div>
   <div class="col-md-3 mb-4">
-    <div class="card bg-info text-white">
-      <div class="card-body">
-        <h5 class="card-title mb-3">
-          <i class="fas fa-chalkboard-teacher me-2"></i>Docentes
-        </h5>
-        <h2 class="display-4 mb-3">{{ docentes_total }}</h2>
-        <p class="card-text">Docentes registrados</p>
+    <div class="card card-stat stat-info">
+      <div class="card-body d-flex align-items-center justify-content-between">
+        <div>
+          <p class="stat-label">Docentes</p>
+          <p class="stat-value">{{ docentes_total }}</p>
+          <small class="text-muted">Docentes registrados</small>
+        </div>
+        <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
       </div>
     </div>
   </div>
   <div class="col-md-3 mb-4">
-    <div class="card bg-warning text-white">
-      <div class="card-body">
-        <h5 class="card-title mb-3">
-          <i class="fas fa-graduation-cap me-2"></i>Grados
-        </h5>
-        <h2 class="display-4 mb-3">{{ grados_total }}</h2>
-        <p class="card-text">Grados activos en el sistema</p>
+    <div class="card card-stat stat-warning">
+      <div class="card-body d-flex align-items-center justify-content-between">
+        <div>
+          <p class="stat-label">Grados</p>
+          <p class="stat-value">{{ grados_total }}</p>
+          <small class="text-muted">Grados activos en el sistema</small>
+        </div>
+        <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
       </div>
     </div>
   </div>
