@@ -24,12 +24,64 @@ def index():
                          docentes_total=docentes_total,
                          grados_total=grados_total)
 
+@admin_bp.route('/perfil')
+@login_required
+@admin_required
+def perfil():
+    return render_template('admin/perfil.html', usuario=current_user)
+
 @admin_bp.route('/usuarios')
 @login_required
 @admin_required
 def usuarios():
     usuarios = Usuario.query.all()
     return render_template('admin/usuarios/index.html', usuarios=usuarios)
+
+@admin_bp.route('/usuarios/<int:id>')
+@login_required
+@admin_required
+def ver_usuario(id):
+    usuario = Usuario.query.get_or_404(id)
+    return render_template('admin/usuarios/ver.html', usuario=usuario)
+
+@admin_bp.route('/usuarios/<int:id>/editar', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def editar_usuario(id):
+    usuario = Usuario.query.get_or_404(id)
+    if request.method == 'POST':
+        try:
+            usuario.nombre_completo = request.form.get('nombre_completo') or usuario.nombre_completo
+            usuario.correo = request.form.get('correo') or usuario.correo
+            nueva_contrasena = request.form.get('password')
+            if nueva_contrasena:
+                usuario.set_password(nueva_contrasena)
+            db.session.commit()
+            flash('Usuario actualizado exitosamente', 'success')
+            return redirect(url_for('admin.ver_usuario', id=usuario.id))
+        except Exception as e:
+            db.session.rollback()
+            flash('No se pudo actualizar el usuario: {}'.format(str(e)), 'error')
+    return render_template('admin/usuarios/editar.html', usuario=usuario)
+
+@admin_bp.route('/usuarios/<int:id>/eliminar')
+@login_required
+@admin_required
+def eliminar_usuario(id):
+    usuario = Usuario.query.get_or_404(id)
+    try:
+        # Eliminar relaciones específicas si existen para evitar conflictos de FK
+        if hasattr(usuario, 'docente') and usuario.docente:
+            db.session.delete(usuario.docente)
+        if hasattr(usuario, 'estudiante') and usuario.estudiante:
+            db.session.delete(usuario.estudiante)
+        db.session.delete(usuario)
+        db.session.commit()
+        flash('Usuario eliminado exitosamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('No se pudo eliminar el usuario: {}'.format(str(e)), 'error')
+    return redirect(url_for('admin.usuarios'))
 
 @admin_bp.route('/usuarios/seleccion')
 @login_required

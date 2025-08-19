@@ -70,31 +70,29 @@
                                     <td>
                                         <div class="btn-group">
                                              {% if usuario.docente %}
-                                             <a href="{{ url_for('admin.ver_docente', id=usuario.id) }}" 
+                                             <a href="{{ url_for('admin.ver_docente', id=usuario.docente.id) }}" 
                                                 class="btn btn-sm btn-info" 
                                                 title="Ver detalles">
                                                  <i class="fas fa-eye"></i>
                                              </a>
-                                             <a href="{{ url_for('admin.editar_docente', id=usuario.id) }}" 
+                                             <a href="{{ url_for('admin.editar_docente', id=usuario.docente.id) }}" 
                                                 class="btn btn-sm btn-warning" 
                                                 title="Editar">
                                                  <i class="fas fa-edit"></i>
                                              </a>
                                              {% elif usuario.estudiante %}
-                                             <a href="{{ url_for('admin.ver_estudiante', id=usuario.id) }}" 
+                                             <a href="{{ url_for('admin.ver_estudiante', id=usuario.estudiante.id) }}" 
                                                 class="btn btn-sm btn-info" 
                                                 title="Ver detalles">
                                                  <i class="fas fa-eye"></i>
                                              </a>
-                                             <a href="{{ url_for('admin.editar_estudiante', id=usuario.id) }}" 
+                                             <a href="{{ url_for('admin.editar_estudiante', id=usuario.estudiante.id) }}" 
                                                 class="btn btn-sm btn-warning" 
                                                 title="Editar">
                                                  <i class="fas fa-edit"></i>
                                              </a>
                                              {% endif %}
-                                            <button class="btn btn-sm btn-danger" 
-                                                    onclick="eliminarUsuario('{{ usuario.nombre_completo }}', {{ usuario.id }})" 
-                                                    title="Eliminar">
+                                            <button class="btn btn-sm btn-danger btn-delete-usuario" data-name="{{ usuario.nombre_completo }}" data-id="{{ usuario.id }}" title="Eliminar">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -122,10 +120,12 @@
 {% block scripts %}
 {{ super() }}
 <script>
-function eliminarUsuario(nombre, id) {
+$(document).on('click', '.btn-delete-usuario', function() {
+    const nombre = $(this).data('name');
+    const id = $(this).data('id');
     if (confirm('¿Estás seguro de eliminar al usuario "' + nombre + '"?')) {
         window.location.href = '/admin/usuarios/' + id + '/eliminar';
     }
-}
+});
 </script>
 {% endblock %}

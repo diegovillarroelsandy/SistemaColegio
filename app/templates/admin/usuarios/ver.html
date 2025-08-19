@@ -1,7 +1,7 @@
 
 {% extends "admin/base.html" %}
-
-{% block content %}
+{% block page_title %}Detalles del Usuario{% endblock %}
+{% block admin_content %}
 <div class="container mt-5">
     <div class="row">
         <div class="col-12">
@@ -26,13 +26,7 @@
                                     <p class="card-text">
                                         <strong>Nombre Completo:</strong> {{ usuario.nombre_completo }}<br>
                                         <strong>Correo:</strong> {{ usuario.correo }}<br>
-                                        <strong>Fecha de Registro:</strong> {{ usuario.fecha_registro.strftime('%Y-%m-%d') }}<br>
-                                        <strong>Estado:</strong> 
-                                        {% if usuario.activo %}
-                                            <span class="badge bg-success">Activo</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">Inactivo</span>
-                                        {% endif %}
+                                        <strong>Fecha de Registro:</strong> {{ usuario.fecha_creacion.strftime('%Y-%m-%d') if usuario.fecha_creacion }}<br>
                                     </p>
                                 </div>
                             </div>
