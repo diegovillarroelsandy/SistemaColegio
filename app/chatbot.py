@@ -8,10 +8,14 @@ load_dotenv()
 chatbot_bp = Blueprint('chatbot', __name__)
 
 # Configuración para OpenRouter
-OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
-client = OpenAI(api_key=OPENROUTER_API_KEY, base_url=OPENROUTER_BASE_URL)
+
+def _get_openrouter_client():
+    api_key = os.getenv('OPENROUTER_API_KEY')
+    if not api_key:
+        return None
+    return OpenAI(api_key=api_key, base_url=OPENROUTER_BASE_URL)
 
 
 from flask_login import current_user
@@ -21,7 +25,8 @@ def chatbot():
     if not request.json or 'message' not in request.json:
         return jsonify({"error": "Missing 'message' in request"}), 400
 
-    if not OPENROUTER_API_KEY:
+    client = _get_openrouter_client()
+    if not client:
         return jsonify({"error": "API key not configured"}), 500
 
     # Obtener contexto del usuario

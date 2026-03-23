@@ -20,6 +20,7 @@ class Rol(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), unique=True, nullable=False)
+    descripcion = db.Column(db.Text)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
     permisos = db.relationship('Permiso', secondary=roles_permisos, backref=db.backref('roles', lazy='dynamic'))
 
@@ -118,11 +119,10 @@ class Ejercicio(db.Model):
     titulo = db.Column(db.String(100))
     enunciado = db.Column(db.Text, nullable=False)
     tipo_interaccion = db.Column(db.String(50))
-    archivo_url = db.Column(db.Text)
+    archivo_url = db.Column(db.String(255))
     grado_destinado_id = db.Column(db.Integer, db.ForeignKey('grados.id', ondelete='SET NULL'))
     docente_id = db.Column(db.Integer, db.ForeignKey('docentes.id', ondelete='SET NULL'))
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
-    archivo_url = db.Column(db.String(255))
     respuestas = db.relationship('RespuestaEstudiante', backref='ejercicio', lazy=True)
 
     def get_html_content(self):
