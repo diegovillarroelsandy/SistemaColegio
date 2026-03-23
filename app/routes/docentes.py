@@ -80,7 +80,7 @@ def contenido():
         db.session.add(nuevo_contenido)
         db.session.commit()
         
-        flash('Contenido creado exitosamente', 'success')
+        flash('Contenido creado exitosamente por jose jejeje', 'success')
         return redirect(url_for('docentes.contenido'))
     
     return render_template('docentes/contenido.html', grados=grados, contenidos=contenidos)
