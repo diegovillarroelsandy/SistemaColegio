@@ -449,4 +449,5 @@ def calificar_respuesta(ejercicio_id, respuesta_id):
             flash('Ocurrió un error al calificar la respuesta', 'error')
 
     return render_template('docentes/ejercicios/calificar_respuesta.html', respuesta=respuesta, ejercicio=respuesta.ejercicio)
+#jose estuvo aqui :)
 
