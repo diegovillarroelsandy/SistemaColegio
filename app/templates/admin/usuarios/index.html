@@ -1,33 +1,32 @@
 {% extends "admin/base.html" %}
 
 {% block admin_content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">Usuarios</h5>
-                    <div class="btn-group">
-                        <a href="{{ url_for('admin.seleccion_usuario') }}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Nuevo Usuario
-                        </a>
-                    </div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Usuarios</h5>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.seleccion_usuario') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Usuario
+                    </a>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Correo</th>
-                                    <th>Rol</th>
-                                    <th>Especialidad/Grado</th>
-                                    <th>Sección</th>
-                                    <th>Fecha de Registro</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Rol</th>
+                                <th>Especialidad/Grado</th>
+                                <th>Sección</th>
+                                <th>Fecha de Registro</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
                             <tbody>
                                 {% if usuarios %}
                                     {% for usuario in usuarios %}
@@ -114,7 +113,6 @@
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -124,7 +122,11 @@ $(document).on('click', '.btn-delete-usuario', function() {
     const nombre = $(this).data('name');
     const id = $(this).data('id');
     if (confirm('¿Estás seguro de eliminar al usuario "' + nombre + '"?')) {
-        window.location.href = '/admin/usuarios/' + id + '/eliminar';
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/usuarios/' + id + '/eliminar';
+        document.body.appendChild(form);
+        form.submit();
     }
 });
 </script>
