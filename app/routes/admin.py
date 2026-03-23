@@ -77,7 +77,7 @@ def eliminar_usuario(id):
             db.session.delete(usuario.estudiante)
         db.session.delete(usuario)
         db.session.commit()
-        flash('Usuario eliminado exitosamente', 'success')
+        flash('Usuario eliminado exitosamente por el adminitrador', 'success')
     except Exception as e:
         db.session.rollback()
         flash('No se pudo eliminar el usuario: {}'.format(str(e)), 'error')
