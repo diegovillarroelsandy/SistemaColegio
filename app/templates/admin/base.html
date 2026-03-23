@@ -267,6 +267,12 @@
         background: white;
         position: relative;
         overflow: hidden;
+        transition: all var(--transition-speed);
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
       }
 
       .card-header {
@@ -281,6 +287,12 @@
         border-radius: 0 0 var(--border-radius) var(--border-radius);
       }
 
+      .table-hover tbody tr:hover {
+        background-color: rgba(59, 130, 246, 0.05);
+        transform: scale(1.01);
+        transition: all 0.2s ease;
+      }
+
       .btn {
         padding: 0.5rem 1rem;
         border-radius: 5px;
@@ -292,6 +304,16 @@
       .btn:hover {
         transform: translateY(-1px);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border: none;
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
       }
 
       /* Loading */
