@@ -1,12 +1,11 @@
 {% extends "admin/base.html" %}
 
 {% block admin_content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Docentes</h5>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Docentes</h5>
                     <div class="btn-group">
                         <a href="{{ url_for('admin.usuarios') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i> Volver a Usuarios
@@ -94,7 +93,6 @@
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
