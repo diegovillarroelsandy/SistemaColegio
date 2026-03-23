@@ -64,7 +64,7 @@ def editar_usuario(id):
             flash('No se pudo actualizar el usuario: {}'.format(str(e)), 'error')
     return render_template('admin/usuarios/editar.html', usuario=usuario)
 
-@admin_bp.route('/usuarios/<int:id>/eliminar')
+@admin_bp.route('/usuarios/<int:id>/eliminar', methods=['POST'])
 @login_required
 @admin_required
 def eliminar_usuario(id):
@@ -130,18 +130,13 @@ def nuevo_docente():
         nuevo_usuario.roles.append(rol_obj)
         
         try:
-            # Guardar el usuario primero
+            # Crear usuario y docente en una sola transacción
             db.session.add(nuevo_usuario)
-            db.session.commit()  # Guardar el usuario antes de crear el docente
-            
-            # Verificar que el usuario se guardó correctamente
-            usuario_guardado = Usuario.query.get(nuevo_usuario.id)
-            if not usuario_guardado:
-                raise ValueError('El usuario no se guardó correctamente en la base de datos')
+            db.session.flush()
             
             # Crear docente con el ID del usuario
             nuevo_docente = Docente(
-                usuario_id=usuario_guardado.id,
+                usuario_id=nuevo_usuario.id,
                 especialidad=especialidad,
                 grado_id=grado_id
             )
@@ -151,12 +146,9 @@ def nuevo_docente():
             flash('Docente creado exitosamente', 'success')
             return redirect(url_for('admin.docentes'))
         except Exception as e:
-            db.session.rollback()  # Revertir cambios si algo falla
+            db.session.rollback()
             flash('Error al crear el docente: {}'.format(str(e)), 'error')
             return redirect(url_for('admin.nuevo_docente'))
-        
-        flash('Docente creado exitosamente', 'success')
-        return redirect(url_for('admin.docentes'))
     
     grados = Grado.query.all()
     return render_template('admin/docentes/nuevo.html', grados=grados)

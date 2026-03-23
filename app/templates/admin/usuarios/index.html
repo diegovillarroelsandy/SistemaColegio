@@ -124,7 +124,11 @@ $(document).on('click', '.btn-delete-usuario', function() {
     const nombre = $(this).data('name');
     const id = $(this).data('id');
     if (confirm('¿Estás seguro de eliminar al usuario "' + nombre + '"?')) {
-        window.location.href = '/admin/usuarios/' + id + '/eliminar';
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/usuarios/' + id + '/eliminar';
+        document.body.appendChild(form);
+        form.submit();
     }
 });
 </script>
