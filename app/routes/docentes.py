@@ -80,7 +80,7 @@ def contenido():
         db.session.add(nuevo_contenido)
         db.session.commit()
         
-        flash('Contenido creado exitosamente', 'success')
+        flash('Contenido creado exitosamente por jose jejeje', 'success')
         return redirect(url_for('docentes.contenido'))
     
     return render_template('docentes/contenido.html', grados=grados, contenidos=contenidos)
@@ -192,7 +192,7 @@ def agregar_nota():
                 )
                 db.session.add(nueva_respuesta)
                 db.session.commit()
-                flash('Nota agregada exitosamente.', 'success')
+                flash('Nota agregada exitosamente por el usuario', 'success')
                 return redirect(url_for('docentes.notas'))
             except ValueError:
                 flash('La nota debe ser un número válido.', 'danger')
@@ -449,4 +449,5 @@ def calificar_respuesta(ejercicio_id, respuesta_id):
             flash('Ocurrió un error al calificar la respuesta', 'error')
 
     return render_template('docentes/ejercicios/calificar_respuesta.html', respuesta=respuesta, ejercicio=respuesta.ejercicio)
+#jose estuvo aqui :)
 
