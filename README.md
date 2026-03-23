@@ -5,3 +5,5 @@
 - Aporte: Modificación inicial del READMEgit add README.md
 - Rol en el proyecto: Desarrollador Frontend
 - Módulo asignado: Gestión de Estudiantes
+- Correo: adam.choquetarqui@upds.com
+- GitHub: https://github.com/adam-choquetarqui
