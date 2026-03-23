@@ -8,3 +8,4 @@
 - Correo: adam.choquetarqui@upds.com
 - GitHub: https://github.com/adam-choquetarqui
 - Comentario: El sistema de colegio permite gestionar estudiantes, docentes y calificaciones de forma eficiente.
+- Estado: Revisado y completado ✔
