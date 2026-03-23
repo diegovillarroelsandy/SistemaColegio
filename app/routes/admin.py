@@ -57,7 +57,7 @@ def editar_usuario(id):
             if nueva_contrasena:
                 usuario.set_password(nueva_contrasena)
             db.session.commit()
-            flash('Usuario actualizado exitosamente', 'success')
+            flash('Usuario actualizado exitosamente por el administrador XD', 'success')
             return redirect(url_for('admin.ver_usuario', id=usuario.id))
         except Exception as e:
             db.session.rollback()
