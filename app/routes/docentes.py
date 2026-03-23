@@ -192,7 +192,7 @@ def agregar_nota():
                 )
                 db.session.add(nueva_respuesta)
                 db.session.commit()
-                flash('Nota agregada exitosamente.', 'success')
+                flash('Nota agregada exitosamente por el usuario', 'success')
                 return redirect(url_for('docentes.notas'))
             except ValueError:
                 flash('La nota debe ser un número válido.', 'danger')
