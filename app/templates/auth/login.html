@@ -1,87 +1,436 @@
-{% extends "auth/base.html" %} {% block title %}Iniciar Sesión - Sistema
-Colegio{% endblock %} {% block content %}
-<div class="text-center">
-  <form class="form-signin" method="POST" action="{{ url_for('auth.login') }}">
-    {{ form.hidden_tag() }}
+{% extends "auth/base.html" %} 
+{% block title %}Iniciar Sesión - Sistema Colegio{% endblock %} 
 
-    <img
-      class="mb-4"
-      src="{{ url_for('static', filename='img/logo.svg') }}"
-      alt="Sistema Colegio"
-      style="max-width: 120px"
-    />
+{% block content %}
 
-    <div class="form-floating mb-3">
-      {{ form.correo(class="form-control", placeholder="Correo electrónico") }}
-      <label for="{{ form.correo.id }}">Correo electrónico</label>
-      {% for error in form.correo.errors %}
-      <div class="text-danger">{{ error }}</div>
-      {% endfor %}
+<!-- ===== FONDO EDUCATIVO INTERACTIVO (Canvas JS) ===== -->
+<canvas id="eduCanvas"></canvas>
+
+<style>
+  /* =========================================================
+     PALETA EXTRAÍDA DEL DASHBOARD
+  ========================================================= */
+  :root {
+    --nav-dark: #1a2980;       /* Sidebar del dashboard */
+    --nav-deep: #0f1b47;       /* Fondo muy oscuro del sidebar */
+    --accent-blue: #2979ff;    /* Botones azules del dashboard */
+    --accent-teal: #00acc1;    /* Botones teal del dashboard */
+    --accent-green: #43a047;   /* Botones verdes del dashboard */
+    --bg-deep: #0c1534;        /* Mezcla oscura coherente */
+    --bg-card: rgba(15, 27, 71, 0.5);
+    --neon-border: rgba(41, 121, 255, 0.25);
+    --text-main: #ffffff;
+    --text-sub: #8B9BB4;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+  body {
+    /* Gradiente coherente con sidebar del dashboard */
+    background: linear-gradient(160deg, var(--nav-deep) 0%, var(--bg-deep) 50%, #0a0f2e 100%) !important;
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+  .form-container, .form-signin {
+    max-width: none !important; width: 100% !important;
+    background: transparent !important; box-shadow: none !important;
+    padding: 0 !important; margin: 0 !important; border-radius: 0 !important;
+    position: static !important;
+    display: flex !important; justify-content: center !important; align-items: center !important;
+    min-height: 100vh !important;
+  }
+
+  /* =========================================================
+     FONDO EDUCATIVO INTERACTIVO (Canvas)
+  ========================================================= */
+  #eduCanvas {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 1; pointer-events: auto;
+  }
+
+  /* =========================================================
+     TARJETA PRINCIPAL
+  ========================================================= */
+  .login-wrapper { position: relative; z-index: 10; width: 100%; max-width: 480px; }
+
+  .login-card {
+    background: var(--bg-card);
+    border-radius: 24px; padding: 50px;
+    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.04);
+    border: 1px solid var(--neon-border);
+    animation: cardEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0; transform: translateY(40px) scale(0.95);
+  }
+
+  /* =========================================================
+     LOGO SVG ANIMADO "SC" (3 Capas)
+  ========================================================= */
+  .brand {
+    display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 40px;
+    animation: itemFade 1s 0.3s forwards; opacity: 0;
+    cursor: pointer;
+  }
+  .logo-svg { width: 90px; height: 90px; margin-bottom: 15px; overflow: visible; }
+
+  .logo-circle {
+    transform-origin: center;
+    animation: popIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both,
+               spinSlow 25s linear infinite;
+  }
+  .logo-letters {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px; font-weight: 700;
+    fill: transparent;
+    stroke: #ffffff; stroke-width: 1.2;
+    stroke-dasharray: 250; stroke-dashoffset: 250;
+    animation: drawLetters 1.8s ease-in-out 1s forwards,
+               fillLetters 0.5s ease-in 2.3s forwards;
+  }
+  .logo-cap {
+    transform-origin: center; opacity: 0;
+    transform: translateY(8px) scale(0.4);
+    animation: floatCore 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 2.6s forwards,
+               pulseCore 3s ease-in-out 3.5s infinite alternate;
+  }
+
+  .brand:hover .logo-svg {
+    transform: scale(1.08) perspective(500px) rotateY(12deg);
+    filter: drop-shadow(0 15px 25px rgba(41,121,255,0.5));
+    transition: all 0.4s ease;
+  }
+  .brand:hover .logo-letters { fill: #f0f0f0; filter: drop-shadow(0 0 10px rgba(255,255,255,0.7)); }
+  .brand:hover .logo-cap { transform: translateY(-3px) scale(1.1); }
+
+  .brand-text {
+    font-size: 28px; font-weight: 800; letter-spacing: 1px;
+    background: linear-gradient(to right, #ffffff, var(--accent-blue));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .brand-sub {
+    font-size: 14px; color: var(--text-sub); letter-spacing: 3px;
+    text-transform: uppercase; margin-top: 5px;
+  }
+
+  /* =========================================================
+     FORMULARIO
+  ========================================================= */
+  .form-group {
+    position: relative; margin-bottom: 30px;
+    animation: itemFade 1s 0.6s forwards; opacity: 0;
+  }
+  .form-group:nth-child(2) { animation-delay: 0.7s; }
+  .form-options { animation: itemFade 1s 0.8s forwards; opacity: 0; }
+  .btn-wrapper { animation: itemFade 1s 0.9s forwards; opacity: 0; }
+  .login-footer-wrap { animation: itemFade 1s 1s forwards; opacity: 0; }
+
+  .input-field {
+    width: 100%; background: rgba(0,0,0,0.22);
+    border: 2px solid rgba(255,255,255,0.08); border-radius: 12px;
+    padding: 16px 20px 16px 50px; color: var(--text-main); font-size: 16px;
+    transition: all 0.3s ease; outline: none;
+  }
+  .input-field::placeholder { color: transparent; }
+  .input-field:focus {
+    border-color: var(--accent-blue); background: rgba(0,0,0,0.38);
+    box-shadow: 0 0 15px rgba(41,121,255,0.2);
+  }
+
+  .floating-label {
+    position: absolute; left: 50px; top: 18px; color: var(--text-sub);
+    font-size: 16px; pointer-events: none; transition: 0.2s ease all;
+  }
+  .input-field:focus ~ .floating-label, .input-field:not(:placeholder-shown) ~ .floating-label {
+    top: -10px; left: 15px; font-size: 12px; font-weight: 600;
+    color: var(--accent-blue); background: var(--bg-deep); padding: 0 5px; border-radius: 4px;
+  }
+
+  .field-icon {
+    position: absolute; left: 18px; top: 18px; width: 22px; height: 22px;
+    fill: var(--text-sub); transition: fill 0.3s;
+  }
+  .input-field:focus ~ .field-icon { fill: var(--accent-blue); }
+
+  .eye-toggle {
+    position: absolute; right: 16px; top: 15px;
+    background: none; border: none; cursor: pointer;
+    fill: var(--text-sub); width: 22px; height: 22px;
+    transition: fill 0.3s; outline: none; z-index: 5;
+  }
+  .eye-toggle:hover { fill: var(--accent-blue); }
+
+  /* Opciones */
+  .form-options {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 35px; color: var(--text-sub); font-size: 14px; padding: 0 5px;
+  }
+  .form-options label { cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .form-options input[type="checkbox"] { accent-color: var(--accent-blue); width: 16px; height: 16px; cursor: pointer; }
+  .forgot-link { color: var(--accent-blue); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+  .forgot-link:hover { color: var(--accent-teal); }
+
+  /* Botón */
+  .btn-submit {
+    width: 100%; padding: 18px; border-radius: 14px; border: none;
+    font-size: 17px; font-weight: 800; letter-spacing: 2px; color: white;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal));
+    background-size: 200% auto; cursor: pointer;
+    box-shadow: 0 10px 25px rgba(41,121,255,0.3);
+    transition: all 0.4s ease; position: relative; overflow: hidden; z-index: 1;
+  }
+  .btn-submit:hover {
+    background-position: right center; transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0,172,193,0.4);
+  }
+  .btn-submit::after {
+    content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.3), rgba(255,255,255,0));
+    transform: skewX(-25deg); z-index: -1; transition: left 0.7s ease;
+  }
+  .btn-submit:hover::after { left: 150%; }
+
+  /* Footer */
+  .login-footer-wrap { text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-sub); }
+  .login-footer-wrap a { color: var(--accent-blue); text-decoration: none; font-weight: 600; }
+  .login-footer-wrap a:hover { color: var(--accent-teal); }
+  .login-footer-wrap .hint { display: block; margin-top: 12px; font-size: 11px; color: rgba(139,155,180,0.5); }
+
+  /* =========================================================
+     KEYFRAMES
+  ========================================================= */
+  @keyframes cardEntrance { to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes itemFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes popIn { 0% { opacity: 0; transform: scale(0) rotate(-45deg); filter: blur(10px); } 100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); } }
+  @keyframes spinSlow { to { transform: rotate(360deg); } }
+  @keyframes drawLetters { to { stroke-dashoffset: 0; } }
+  @keyframes fillLetters { to { fill: #ffffff; stroke: transparent; filter: drop-shadow(0 0 5px rgba(255,255,255,0.4)); } }
+  @keyframes floatCore { to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes pulseCore {
+    0% { filter: brightness(1) drop-shadow(0 0 2px var(--accent-blue)); }
+    100% { filter: brightness(1.3) drop-shadow(0 0 15px var(--accent-teal)); transform: scale(1.08); }
+  }
+
+  @media (max-width: 500px) {
+    .login-card { padding: 36px 28px; }
+    .brand-text { font-size: 22px; }
+    .logo-svg { width: 75px; height: 75px; }
+  }
+</style>
+
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <!-- ============ LOGO SVG ANIMADO "SC" ============ -->
+    <div class="brand">
+      <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1a2980" />
+            <stop offset="100%" stop-color="#2979ff" />
+          </linearGradient>
+        </defs>
+        <circle class="logo-circle" cx="50" cy="50" r="50" fill="url(#bgGrad)" />
+        <text class="logo-letters" x="50" y="62" text-anchor="middle" dominant-baseline="middle">SC</text>
+        <g class="logo-cap">
+          <polygon points="50,18 35,28 65,28" fill="#00acc1"/>
+          <rect x="43" y="28" width="14" height="4" rx="1" fill="#4dd0e1"/>
+          <line x1="50" y1="18" x2="50" y2="12" stroke="#4dd0e1" stroke-width="1.5"/>
+          <circle cx="50" cy="11" r="2" fill="#4dd0e1"/>
+        </g>
+      </svg>
+      <div class="brand-text">SColegio</div>
+      <div class="brand-sub">Sistema Educativo</div>
     </div>
 
-    <div class="form-floating mb-3 position-relative">
-      {{ form.password(class="form-control", placeholder="Contraseña",
-      id="password-input") }}
-      <label for="{{ form.password.id }}">Contraseña</label>
-      <button
-        type="button"
-        class="btn btn-link position-absolute top-50 end-0 translate-middle-y ms-2"
-        id="toggle-password"
-      >
-        <i class="fas fa-eye"></i>
-      </button>
-      {% for error in form.password.errors %}
-      <div class="text-danger">{{ error }}</div>
-      {% endfor %}
-    </div>
-    <script>
-      document
-        .getElementById("toggle-password")
-        .addEventListener("click", function () {
-          const passwordInput = document.getElementById("password-input");
-          const icon = this.querySelector("i");
+    <!-- ============ FORMULARIO ============ -->
+    <form method="POST" action="{{ url_for('auth.login') }}" autocomplete="off">
+      {{ form.hidden_tag() }}
 
-          if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-          } else {
-            passwordInput.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-          }
-        });
-    </script>
+      <div class="form-group">
+        {{ form.correo(class="input-field", placeholder="x", required="required") }}
+        <label class="floating-label" for="{{ form.correo.id }}">Correo electrónico</label>
+        <svg class="field-icon" viewBox="0 0 24 24"><path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>
+        {% for error in form.correo.errors %}
+          <div style="color:#f87171;font-size:0.82rem;font-weight:600;margin-top:6px;">{{ error }}</div>
+        {% endfor %}
+      </div>
 
-    <div class="checkbox mb-3">
-      {{ form.remember_me(class="form-check-input") }} {{
-      form.remember_me.label(class="form-check-label") }}
-      <small class="text-muted"
-        >(La sesión se mantendrá activa incluso después de cerrar el
-        navegador)</small
-      >
-    </div>
+      <div class="form-group">
+        {{ form.password(class="input-field", placeholder="x", required="required", id="password-input") }}
+        <label class="floating-label" for="{{ form.password.id }}">Contraseña</label>
+        <svg class="field-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.8-2.2-5-5-5S7 3.2 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.7 1.3-3 3-3s3 1.3 3 3v2H9V6z"/></svg>
+        <svg class="eye-toggle" id="toggle-password" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.7 7.6 1 12c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5c-1.7-4.4-6-7.5-11-7.5zm0 12.5c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm0-8c-1.7 0-3 1.3-3 3s1.3 3 3 3 3-1.3 3-3-1.3-3-3-3z"/></svg>
+        {% for error in form.password.errors %}
+          <div style="color:#f87171;font-size:0.82rem;font-weight:600;margin-top:6px;">{{ error }}</div>
+        {% endfor %}
+      </div>
 
-    <button type="submit" class="w-100 btn btn-lg btn-primary">
-      Iniciar Sesión
-    </button>
+      <div class="form-options">
+        <label>
+          {{ form.remember_me(style="accent-color:var(--accent-blue);width:16px;height:16px;cursor:pointer") }}
+          Recordarme
+        </label>
+        <a href="#" class="forgot-link">¿Olvidó su clave?</a>
+      </div>
 
-    <div class="mt-3">
-      <p class="text-center">
-        ¿No tienes cuenta?
-        <a href="{{ url_for('auth.register') }}">Regístrate aquí</a>
-      </p>
-      <p class="text-center text-muted">
-        <small
-          >La sesión se mantendrá activa durante 30 días si seleccionas
-          "Recordarme"</small
-        >
-      </p>
-    </div>
-  </form>
+      <div class="btn-wrapper">
+        <button type="submit" class="btn-submit">INICIAR SESIÓN</button>
+      </div>
+
+      <div class="login-footer-wrap">
+        ¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate aquí</a>
+        <small class="hint">La sesión se mantendrá activa durante 30 días si seleccionas "Recordarme"</small>
+      </div>
+    </form>
+
+  </div>
 </div>
 
-{% with messages = get_flashed_messages(with_categories=true) %} {% if messages
-%} {% for category, message in messages %}
-<div class="alert alert-{{ category }} mt-3">{{ message }}</div>
-{% endfor %} {% endif %} {% endwith %} {% endblock %}
+<script>
+  /* ===== Toggle Contraseña ===== */
+  document.getElementById("toggle-password").addEventListener("click", function() {
+    var input = document.getElementById("password-input");
+    if (input.type === "password") {
+      input.type = "text";
+      this.innerHTML = '<path d="M12 7c2.8 0 5 2.2 5 5 0 .6-.1 1.3-.4 1.8l2.9 2.9c1.5-1.3 2.7-2.9 3.5-4.7-1.7-4.4-6-7.5-11-7.5-1.4 0-2.7.3-4 .7l2.2 2.2c.5-.3 1.1-.4 1.8-.4zm-10-2.7l2.3 2.3.5.5C3.2 8.5 1.9 10.1 1 12c1.7 4.4 6 7.5 11 7.5 1.5 0 3-.3 4.4-.8l.4.4 3 3 1.3-1.3L3.3 3 2 4.3zm5.5 5.5l1.6 1.6c0 .2-.1.3-.1.5 0 1.7 1.3 3 3 3 .2 0 .4 0 .5-.1l1.6 1.6c-.6.3-1.3.5-2.1.5-2.8 0-5-2.2-5-5 0-.8.2-1.5.5-2.1z"/>';
+    } else {
+      input.type = "password";
+      this.innerHTML = '<path d="M12 4.5C7 4.5 2.7 7.6 1 12c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5c-1.7-4.4-6-7.5-11-7.5zm0 12.5c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm0-8c-1.7 0-3 1.3-3 3s1.3 3 3 3 3-1.3 3-3-1.3-3-3-3z"/>';
+    }
+  });
+
+  /* =============================================================
+     MOTOR INTERACTIVO EDUCATIVO (Canvas Vanilla JS)
+     - Nodos con símbolos educativos flotando
+     - Líneas de conexión entre nodos cercanos
+     - Mouse GRAB (conecta líneas al cursor)
+     - Click genera nodos nuevos
+  ============================================================= */
+  (function() {
+    const canvas = document.getElementById('eduCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    const mouse = { x: -500, y: -500 };
+    const GRAB_DIST = 180;
+    const LINK_DIST = 150;
+
+    // Símbolos educativos que aparecerán en los nodos
+    const SYMBOLS = ['∑','π','Δ','∫','+','×','÷','√','∞','α','β','φ','λ','θ','Ω','E','n!','log','dx','f(x)'];
+    const COLORS = ['rgba(41,121,255,','rgba(0,172,193,','rgba(67,160,71,'];
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Crear nodos
+    const nodes = [];
+    const NODE_COUNT = 50;
+
+    function createNode(x, y) {
+      return {
+        x: x || Math.random() * W,
+        y: y || Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        r: Math.random() * 2.5 + 1.5,
+        symbol: SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+        showSymbol: Math.random() > 0.6,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        baseOpacity: Math.random() * 0.25 + 0.15
+      };
+    }
+
+    for (let i = 0; i < NODE_COUNT; i++) nodes.push(createNode());
+
+    // Mouse tracking
+    window.addEventListener('mousemove', function(e) { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('mouseleave', function() { mouse.x = -500; mouse.y = -500; });
+
+    // Click para generar nuevos nodos
+    window.addEventListener('click', function(e) {
+      // No generar si el click es sobre la tarjeta
+      if (e.target.closest('.login-wrapper')) return;
+      for (let i = 0; i < 3; i++) {
+        nodes.push(createNode(e.clientX + (Math.random()-0.5)*40, e.clientY + (Math.random()-0.5)*40));
+      }
+      // Limitar total para no sobrecargar
+      while (nodes.length > 120) nodes.shift();
+    });
+
+    function animate() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Actualizar y dibujar nodos
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        n.x += n.vx;
+        n.y += n.vy;
+
+        // Rebote suave en los bordes
+        if (n.x < 0 || n.x > W) n.vx *= -1;
+        if (n.y < 0 || n.y > H) n.vy *= -1;
+
+        // Dibujar líneas entre nodos cercanos
+        for (let j = i + 1; j < nodes.length; j++) {
+          const n2 = nodes[j];
+          const dx = n.x - n2.x;
+          const dy = n.y - n2.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < LINK_DIST) {
+            const opacity = (1 - dist / LINK_DIST) * 0.15;
+            ctx.beginPath();
+            ctx.moveTo(n.x, n.y);
+            ctx.lineTo(n2.x, n2.y);
+            ctx.strokeStyle = 'rgba(41,121,255,' + opacity + ')';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+
+        // Línea al mouse (efecto GRAB)
+        const dxM = n.x - mouse.x;
+        const dyM = n.y - mouse.y;
+        const distM = Math.sqrt(dxM*dxM + dyM*dyM);
+        if (distM < GRAB_DIST) {
+          const opacity = (1 - distM / GRAB_DIST) * 0.5;
+          ctx.beginPath();
+          ctx.moveTo(n.x, n.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = 'rgba(0,172,193,' + opacity + ')';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+          // Los nodos cercanos al mouse brillan más
+          n.currentOpacity = n.baseOpacity + (1 - distM / GRAB_DIST) * 0.4;
+        } else {
+          n.currentOpacity = n.baseOpacity;
+        }
+
+        // Dibujar el nodo (punto)
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = n.color + n.currentOpacity + ')';
+        ctx.fill();
+
+        // Dibujar símbolo educativo (solo algunos nodos)
+        if (n.showSymbol) {
+          ctx.font = '600 11px Space Grotesk, sans-serif';
+          ctx.fillStyle = n.color + (n.currentOpacity * 0.7) + ')';
+          ctx.fillText(n.symbol, n.x + 6, n.y - 6);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+  })();
+</script>
+{% endblock %}
